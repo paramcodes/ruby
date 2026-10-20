@@ -1,3 +1,5 @@
+import "server-only";
+
 import { randomUUID } from "node:crypto";
 
 import type { UserId } from "@/server/auth/types";
@@ -39,8 +41,12 @@ export async function createPage(
   return withPageRepository(userId, async (repository) => {
     const links = await repository.listPageLinks();
     const parentId = parsed.value.parentId;
+    const parent =
+      parentId === null ? null : links.find((link) => link.id === parentId);
 
-    if (parentId !== null && !links.some((link) => link.id === parentId)) {
+    // An archived parent would make the new active page unreachable in active
+    // navigation, so it is treated like a missing parent.
+    if (parentId !== null && (!parent || parent.archivedAt !== null)) {
       return failure("invalid-parent");
     }
 
@@ -107,8 +113,14 @@ export async function movePage(
 
     const { parentId } = parsed.value;
 
-    if (parentId !== null && !pageById.has(parentId)) {
-      return failure("invalid-parent");
+    if (parentId !== null) {
+      const parent = pageById.get(parentId);
+
+      // An archived parent would make the moved page unreachable in active
+      // navigation, so it is rejected like a missing parent.
+      if (!parent || parent.archivedAt !== null) {
+        return failure("invalid-parent");
+      }
     }
 
     if (
@@ -146,13 +158,12 @@ export async function archivePage(
     }
 
     const subtree = collectSubtree(parsedId.value, pageById);
-    const toArchive = subtree.filter(
-      (id) => pageById.get(id)?.archivedAt === null
-    );
+    const archivedAt = new Date();
 
-    if (toArchive.length > 0) {
-      await repository.updatePages(toArchive, { archivedAt: new Date() });
-    }
+    // The `active` state filter lives in SQL so a concurrently archived row is
+    // never rewritten, and the per-user transaction lock keeps the read set and
+    // the write set from diverging.
+    await repository.updatePages(subtree, { archivedAt }, "active");
 
     return summarize(repository, parsedId.value);
   });
@@ -176,6 +187,12 @@ export async function restorePage(
       return failure("not-found");
     }
 
+    // Restoring an already-active page is a no-op success. Restoring its
+    // descendants here would resurrect children the user archived on purpose.
+    if (pageById.get(parsedId.value)?.archivedAt === null) {
+      return summarize(repository, parsedId.value);
+    }
+
     // Project ruling: restoring a page also restores the archived subtree
     // below it and every archived ancestor above it. Without the ancestor
     // chain a restored page would stay unreachable from the active tree.
@@ -187,13 +204,13 @@ export async function restorePage(
       ancestorId = pageById.get(ancestorId)?.parentId ?? null;
     }
 
-    const archivedToRestore = [...toRestore].filter(
-      (id) => pageById.get(id)?.archivedAt !== null
+    // The `archived` state filter lives in SQL, so rows that are already
+    // active are not rewritten and the restored summary stays accurate.
+    await repository.updatePages(
+      [...toRestore],
+      { archivedAt: null },
+      "archived"
     );
-
-    if (archivedToRestore.length > 0) {
-      await repository.updatePages(archivedToRestore, { archivedAt: null });
-    }
 
     return summarize(repository, parsedId.value);
   });

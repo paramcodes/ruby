@@ -1,8 +1,16 @@
 // @vitest-environment node
 
 import { randomUUID } from "node:crypto";
-import { inArray } from "drizzle-orm";
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { inArray, sql } from "drizzle-orm";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi
+} from "vitest";
 
 import { db } from "@/server/db/client";
 import { user } from "@/server/db/schema";
@@ -28,6 +36,8 @@ import {
   type PageSummary
 } from "@/server/pages/types";
 import { ensurePrivateWorkspace } from "@/server/workspaces/queries";
+
+vi.mock("server-only", () => ({}));
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
@@ -57,6 +67,28 @@ function unwrap<T>(result: Result<T, PageCommandError>): T {
   }
 
   return result.value;
+}
+
+// Walks every page's parent chain and reports whether a page repeats. A cycle
+// would make this return false.
+function isAcyclic(pages: readonly PageSummary[]): boolean {
+  const parentById = new Map(pages.map((item) => [item.id, item.parentId]));
+
+  for (const item of pages) {
+    const visited = new Set<PageId>();
+    let current: PageId | null = item.id;
+
+    while (current !== null) {
+      if (visited.has(current)) {
+        return false;
+      }
+
+      visited.add(current);
+      current = parentById.get(current) ?? null;
+    }
+  }
+
+  return true;
 }
 
 describe.skipIf(!hasDatabase)("page commands", () => {
@@ -151,6 +183,20 @@ describe.skipIf(!hasDatabase)("page commands", () => {
       await expect(
         createPage(userA, { title: "Orphan", parentId: otherUsersPage.id })
       ).resolves.toEqual({ ok: false, error: "invalid-parent" });
+    });
+
+    it("rejects an archived parent", async () => {
+      const parent = await create(userA, "Parent");
+      unwrap(await archivePage(userA, parent.id));
+
+      await expect(
+        createPage(userA, { title: "Child", parentId: parent.id })
+      ).resolves.toEqual({ ok: false, error: "invalid-parent" });
+
+      expect(await listPagesForUser(userA)).toEqual([]);
+      expect(
+        (await listArchivedPagesForUser(userA)).map((item) => item.id)
+      ).toEqual([parent.id]);
     });
   });
 
@@ -322,6 +368,59 @@ describe.skipIf(!hasDatabase)("page commands", () => {
       expect((await getPageForUser(userA, moving.id))?.parentId).toBeNull();
     });
 
+    it("rejects an archived parent", async () => {
+      const moving = await create(userA, "Moving");
+      const parent = await create(userA, "Parent");
+      unwrap(await archivePage(userA, parent.id));
+
+      await expect(
+        movePage(userA, {
+          pageId: moving.id,
+          parentId: parent.id,
+          sortOrder: 0
+        })
+      ).resolves.toEqual({ ok: false, error: "invalid-parent" });
+
+      expect((await getPageForUser(userA, moving.id))?.parentId).toBeNull();
+    });
+
+    it("serializes concurrent moves so they cannot create a cycle", async () => {
+      const first = await create(userA, "A");
+      const second = await create(userA, "B");
+
+      // Warm up a second pooled connection. Otherwise postgres.js spends the
+      // first move's whole duration opening one, the two transactions never
+      // overlap, and the test would pass even without the per-user lock.
+      await Promise.all([
+        db.execute(sql`select pg_sleep(0.05)`),
+        db.execute(sql`select pg_sleep(0.05)`)
+      ]);
+
+      const results = await Promise.all([
+        movePage(userA, {
+          pageId: first.id,
+          parentId: second.id,
+          sortOrder: 0
+        }),
+        movePage(userA, {
+          pageId: second.id,
+          parentId: first.id,
+          sortOrder: 0
+        })
+      ]);
+
+      expect(results.filter((result) => result.ok)).toHaveLength(1);
+      expect(results.find((result) => !result.ok)).toEqual({
+        ok: false,
+        error: "cycle"
+      });
+
+      const pages = await listPagesForUser(userA);
+      expect(isAcyclic(pages)).toBe(true);
+      // Exactly one of the two pages was reparented under the other.
+      expect(pages.filter((item) => item.parentId !== null)).toHaveLength(1);
+    });
+
     it("returns not-found for a missing page and for another user's page", async () => {
       const otherUsersPage = await create(userB, "Private");
       const parent = await create(userA, "Parent");
@@ -431,6 +530,22 @@ describe.skipIf(!hasDatabase)("page commands", () => {
         [root.id, child.id, grandchild.id].sort()
       );
       expect(await listArchivedPagesForUser(userA)).toEqual([]);
+    });
+
+    it("is a no-op for an already-active page and leaves archived descendants alone", async () => {
+      const root = await create(userA, "Root");
+      const child = await create(userA, "Child", root.id);
+      unwrap(await archivePage(userA, child.id));
+
+      const restored = unwrap(await restorePage(userA, root.id));
+
+      expect(restored).toMatchObject({ id: root.id, archivedAt: null });
+      expect(
+        (await getPageForUser(userA, child.id))?.archivedAt
+      ).toBeInstanceOf(Date);
+      expect(
+        (await listArchivedPagesForUser(userA)).map((item) => item.id)
+      ).toEqual([child.id]);
     });
 
     it("returns not-found for a missing page and for another user's page", async () => {

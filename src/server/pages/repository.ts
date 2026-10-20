@@ -1,4 +1,6 @@
-import { and, eq, inArray } from "drizzle-orm";
+import "server-only";
+
+import { and, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 
 import type { UserId } from "@/server/auth/types";
 import { db } from "@/server/db/client";
@@ -45,6 +47,11 @@ export type PageChanges = {
   archivedAt?: Date | null;
 };
 
+// The archive state a bulk update is allowed to touch. Archive only rewrites
+// active rows and restore only rewrites archived rows, so a row whose state
+// changed concurrently is never overwritten.
+export type PageStateFilter = "active" | "archived";
+
 // Commands only ever see this ownership-scoped view. Every method is bound to a
 // user id and filters through workspace.user_id, so there is no way to read or
 // mutate another user's page by passing a page id.
@@ -55,7 +62,8 @@ export type PageRepository = {
   updatePage(pageId: PageId, changes: PageChanges): Promise<PageSummary | null>;
   updatePages(
     pageIds: readonly PageId[],
-    changes: PageChanges
+    changes: PageChanges,
+    state?: PageStateFilter
   ): Promise<PageSummary[]>;
 };
 
@@ -65,7 +73,15 @@ export async function withPageRepository<T>(
   userId: UserId,
   work: (repository: PageRepository) => Promise<T>
 ): Promise<T> {
-  return db.transaction(async (tx) => work(createRepository(tx, userId)));
+  return db.transaction(async (tx) => {
+    // Hierarchy commands read the page tree, check it, and then write. Two
+    // concurrent moves could each pass the cycle check against the pre-move
+    // tree and then write a cycle, so hierarchy mutations are serialized per
+    // user. The lock is transaction scoped and released on commit/rollback.
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${userId}))`);
+
+    return work(createRepository(tx, userId));
+  });
 }
 
 function createRepository(tx: Transaction, userId: UserId): PageRepository {
@@ -160,10 +176,17 @@ function createRepository(tx: Transaction, userId: UserId): PageRepository {
       return row ? toSummary(row) : null;
     },
 
-    async updatePages(pageIds, changes) {
+    async updatePages(pageIds, changes, state) {
       if (pageIds.length === 0) {
         return [];
       }
+
+      const stateFilter =
+        state === "active"
+          ? isNull(page.archivedAt)
+          : state === "archived"
+            ? isNotNull(page.archivedAt)
+            : undefined;
 
       const rows = await tx
         .update(page)
@@ -171,7 +194,8 @@ function createRepository(tx: Transaction, userId: UserId): PageRepository {
         .where(
           and(
             inArray(page.id, pageIds),
-            inArray(page.workspaceId, ownedWorkspaceIds())
+            inArray(page.workspaceId, ownedWorkspaceIds()),
+            stateFilter
           )
         )
         .returning(summaryColumns);

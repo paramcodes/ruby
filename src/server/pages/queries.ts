@@ -1,3 +1,5 @@
+import "server-only";
+
 import { and, asc, eq, isNotNull, isNull } from "drizzle-orm";
 
 import type { UserId } from "@/server/auth/types";

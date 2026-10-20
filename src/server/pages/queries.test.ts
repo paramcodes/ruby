@@ -2,7 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { eq, inArray } from "drizzle-orm";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { db } from "@/server/db/client";
 import { user } from "@/server/db/schema";
@@ -15,6 +15,8 @@ import {
 import { page } from "@/server/pages/schema";
 import { ensurePrivateWorkspace } from "@/server/workspaces/queries";
 import { workspace } from "@/server/workspaces/schema";
+
+vi.mock("server-only", () => ({}));
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
