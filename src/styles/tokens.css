@@ -13,7 +13,13 @@
   --color-surface-sunken: light-dark(oklch(92% 0.012 80), oklch(13% 0.007 78));
   --color-text: light-dark(oklch(24% 0.012 75), oklch(92% 0.008 80));
   --color-text-muted: light-dark(oklch(44% 0.012 75), oklch(76% 0.01 80));
-  --color-text-subtle: light-dark(oklch(50% 0.01 75), oklch(66% 0.01 80));
+  /* Subtle text styles small captions, so it owes WCAG AA 4.5:1 on every
+     surface in both themes. Dark sits at 71% because that is the lowest
+     lightness that clears the floor on dark raised (the tightest pair, 4.75:1);
+     light's tightest pair is sunken at 4.74:1. Lowering dark subtle, or
+     lifting dark raised, drops below 4.5:1 and needs a re-measure. Keep it
+     below dark muted (76%) so the two tiers stay distinguishable. */
+  --color-text-subtle: light-dark(oklch(50% 0.01 75), oklch(71% 0.01 80));
   /* --color-border and --color-border-strong are decorative separators only.
      Interactive boundaries (inputs, buttons) use --color-border-interactive, a
      58% text/canvas mix. It clears WCAG 1.4.11 non-text contrast (3:1) against
