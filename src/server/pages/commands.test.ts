@@ -537,12 +537,20 @@ describe.skipIf(!hasDatabase)("page commands", () => {
       const child = await create(userA, "Child", root.id);
       unwrap(await archivePage(userA, child.id));
 
+      const childBeforeRestore = await getPageForUser(userA, child.id);
+      const childArchivedAt = childBeforeRestore?.archivedAt;
+
+      if (!childArchivedAt) {
+        throw new Error("Expected the archived child to have an archivedAt");
+      }
+
       const restored = unwrap(await restorePage(userA, root.id));
 
       expect(restored).toMatchObject({ id: root.id, archivedAt: null });
+      // Restoring the active root must not touch the child's archive timestamp.
       expect(
-        (await getPageForUser(userA, child.id))?.archivedAt
-      ).toBeInstanceOf(Date);
+        (await getPageForUser(userA, child.id))?.archivedAt?.getTime()
+      ).toBe(childArchivedAt.getTime());
       expect(
         (await listArchivedPagesForUser(userA)).map((item) => item.id)
       ).toEqual([child.id]);

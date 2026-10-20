@@ -73,15 +73,22 @@ export async function withPageRepository<T>(
   userId: UserId,
   work: (repository: PageRepository) => Promise<T>
 ): Promise<T> {
-  return db.transaction(async (tx) => {
-    // Hierarchy commands read the page tree, check it, and then write. Two
-    // concurrent moves could each pass the cycle check against the pre-move
-    // tree and then write a cycle, so hierarchy mutations are serialized per
-    // user. The lock is transaction scoped and released on commit/rollback.
-    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${userId}))`);
+  return db.transaction(
+    async (tx) => {
+      // Hierarchy commands read the page tree, check it, and then write. Two
+      // concurrent moves could each pass the cycle check against the pre-move
+      // tree and then write a cycle, so hierarchy mutations are serialized per
+      // user. The lock is transaction scoped and released on commit/rollback.
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${userId}))`);
 
-    return work(createRepository(tx, userId));
-  });
+      return work(createRepository(tx, userId));
+    },
+    // Read committed is what makes the lock sufficient: each statement sees
+    // rows committed by the previous lock holder, so the cycle check reads the
+    // post-move tree. Under repeatable read a snapshot taken before a
+    // concurrent move committed would hide that move from the check.
+    { isolationLevel: "read committed" }
+  );
 }
 
 function createRepository(tx: Transaction, userId: UserId): PageRepository {
