@@ -8,6 +8,13 @@
       "when": 1792498185273,
       "tag": "0000_slim_johnny_blaze",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792502806909,
+      "tag": "0001_brown_bushwacker",
+      "breakpoints": true
     }
   ]
 }
