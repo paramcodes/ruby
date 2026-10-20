@@ -2,11 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   MAX_PAGE_ID_LENGTH,
-  MAX_TITLE_LENGTH,
   MAX_WORKSPACE_ID_LENGTH,
   toPageId,
   toWorkspaceId
-} from "./types";
+} from "@/server/ids";
+
+import { MAX_TITLE_LENGTH } from "./types";
 import {
   validateCreatePageInput,
   validateMovePageInput,

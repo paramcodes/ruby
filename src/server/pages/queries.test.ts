@@ -6,13 +6,13 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { db } from "@/server/db/client";
 import { user } from "@/server/db/schema";
+import { toPageId, type PageId } from "@/server/ids";
 import {
   getPageForUser,
   listArchivedPagesForUser,
   listPagesForUser
 } from "@/server/pages/queries";
 import { page } from "@/server/pages/schema";
-import { toPageId, type PageId } from "@/server/pages/types";
 import { ensurePrivateWorkspace } from "@/server/workspaces/queries";
 import { workspace } from "@/server/workspaces/schema";
 

@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 
 import type { UserId } from "@/server/auth/types";
 import { db } from "@/server/db/client";
-import { toWorkspaceId, type WorkspaceId } from "@/server/pages/types";
+import { toWorkspaceId, type WorkspaceId } from "@/server/ids";
 
 import { workspace } from "./schema";
 

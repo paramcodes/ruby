@@ -1,10 +1,10 @@
+import { toPageId, type PageId } from "@/server/ids";
+
 import {
   MAX_SORT_ORDER,
   MAX_TITLE_LENGTH,
-  toPageId,
   type CreatePageInput,
-  type MovePageInput,
-  type PageId
+  type MovePageInput
 } from "./types";
 
 export type ValidationError =
