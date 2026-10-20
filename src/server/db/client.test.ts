@@ -4,15 +4,20 @@ import { describe, expect, it, vi } from "vitest";
 import { sql } from "drizzle-orm";
 
 describe("database client", () => {
-  it("throws a clear error when DATABASE_URL is missing", async () => {
+  it("fails with a clear error on first use when DATABASE_URL is missing", async () => {
     const original = process.env.DATABASE_URL;
     delete process.env.DATABASE_URL;
     vi.resetModules();
 
-    await expect(import("@/server/db/client")).rejects.toThrow(/DATABASE_URL/);
+    try {
+      const { db } = await import("@/server/db/client");
 
-    if (original !== undefined) {
-      process.env.DATABASE_URL = original;
+      expect(() => db.execute(sql`select 1`)).toThrow(/DATABASE_URL/);
+    } finally {
+      if (original !== undefined) {
+        process.env.DATABASE_URL = original;
+      }
+      vi.resetModules();
     }
   });
 

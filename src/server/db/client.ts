@@ -1,14 +1,31 @@
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 
-const databaseUrl = process.env.DATABASE_URL;
+type Database = ReturnType<typeof drizzle>;
 
-if (!databaseUrl) {
-  throw new Error(
-    "DATABASE_URL is not set. Configure it (see .env.example) before using the database client."
-  );
+let client: Database | undefined;
+
+function connect(): Database {
+  if (!client) {
+    const databaseUrl = process.env.DATABASE_URL;
+
+    if (!databaseUrl) {
+      throw new Error(
+        "DATABASE_URL is not set. Configure it (see .env.example) before using the database client."
+      );
+    }
+
+    client = drizzle(postgres(databaseUrl));
+  }
+
+  return client;
 }
 
-const queryClient = postgres(databaseUrl);
+export const db = new Proxy({} as Database, {
+  get(_target, property) {
+    const database = connect();
+    const value = Reflect.get(database, property);
 
-export const db = drizzle(queryClient);
+    return typeof value === "function" ? value.bind(database) : value;
+  }
+});
