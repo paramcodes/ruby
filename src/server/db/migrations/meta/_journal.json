@@ -36,6 +36,13 @@
       "when": 1792528518488,
       "tag": "0004_brown_quicksilver",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792528518489,
+      "tag": "0005_tender_search",
+      "breakpoints": true
     }
   ]
 }

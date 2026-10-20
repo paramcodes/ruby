@@ -14,6 +14,7 @@ import { FavoritesList } from "./favorites-list";
 import { PageActions, describePageActionError } from "./page-actions";
 import { PageTree } from "./page-tree";
 import { RecentPagesList } from "./recent-pages-list";
+import { SearchDialog } from "../search/search-dialog";
 import styles from "./sidebar.module.css";
 
 export type SidebarProps = {
@@ -52,7 +53,7 @@ export function Sidebar({
       />
 
       <div className={styles.sections}>
-        <SearchPlaceholder />
+        <SearchDialog />
         <FavoritesList favorites={[...favorites]} />
         <RecentPagesList recentPages={[...recentPages]} />
       </div>
@@ -111,20 +112,6 @@ export function CreatePageForm({
         {pending ? "Creating..." : submitLabel}
       </Button>
     </form>
-  );
-}
-
-function SearchPlaceholder() {
-  return (
-    <section className={styles.placeholder}>
-      <h2 className={styles.placeholderTitle}>
-        Search
-        <span className={styles.badge}>Coming soon</span>
-      </h2>
-      <p className={styles.placeholderText}>
-        Full-text search is coming to this workspace.
-      </p>
-    </section>
   );
 }
 

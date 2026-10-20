@@ -1,0 +1,102 @@
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  width: 100%;
+  padding: var(--space-3xs) 0;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+  text-align: start;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.trigger span {
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .trigger:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+.searchInput {
+  width: 100%;
+  padding: var(--space-2xs) var(--space-sm);
+  border: var(--border-width) solid var(--color-border-interactive);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+  outline: none;
+}
+
+.searchInput:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.results {
+  display: grid;
+  gap: var(--space-2xs);
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+.resultItem {
+  list-style: none;
+}
+
+.resultLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  width: 100%;
+  padding: var(--space-2xs) var(--space-xs);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+  text-decoration: none;
+  border-radius: var(--radius-small);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .resultLink:hover {
+    background: var(--color-surface);
+  }
+}
+
+.star {
+  font-size: var(--font-size-small);
+  color: gold;
+}
+
+.resultTitle {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hint {
+  padding: var(--space-2xs) 0;
+  color: var(--color-text-subtle);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .resultLink {
+    transition: background-color var(--duration-fast) var(--ease-standard);
+  }
+}

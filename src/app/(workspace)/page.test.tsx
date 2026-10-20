@@ -28,6 +28,9 @@ vi.mock("@/app/actions/pages", () => ({
 vi.mock("@/app/actions/favorites", () => ({
   unfavoritePageAction: vi.fn()
 }));
+vi.mock("@/app/actions/search", () => ({
+  searchAction: vi.fn()
+}));
 vi.mock("@/server/auth/current-user", () => ({ getCurrentUser }));
 vi.mock("@/server/pages/queries", () => ({
   listArchivedPagesForUser,

@@ -46,41 +46,6 @@
   border-block-start: var(--border-width) solid var(--color-border);
 }
 
-.placeholder {
-  display: grid;
-  gap: var(--space-3xs);
-}
-
-.placeholderTitle {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2xs);
-  color: var(--color-text);
-  font-family: var(--font-ui);
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-snug);
-}
-
-.badge {
-  padding-block: 0;
-  padding-inline: var(--space-3xs);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-small);
-  color: var(--color-text-subtle);
-  font-size: var(--font-size-small);
-  font-weight: normal;
-}
-
-.placeholderText {
-  max-inline-size: var(--measure-lead);
-  color: var(--color-text-subtle);
-  font-family: var(--font-ui);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-snug);
-}
-
 @media (max-width: 48rem) {
   .sidebar {
     border-inline-end: 0;
