@@ -1,3 +1,5 @@
+@import "./tokens.css";
+
 *,
 *::before,
 *::after {
@@ -5,63 +7,107 @@
   min-inline-size: 0;
 }
 
-:root {
-  --color-surface: oklch(97% 0.012 85);
-  --color-surface-raised: oklch(100% 0 none);
-  --color-text: oklch(24% 0.018 70);
-  --color-text-muted: oklch(46% 0.02 70);
-  --color-accent: oklch(54% 0.13 165);
-  --color-border: oklch(84% 0.018 80);
-  --font-body: Georgia, "Times New Roman", serif;
-  --font-ui: Inter, ui-sans-serif, system-ui, sans-serif;
-  --space-1: 0.5rem;
-  --space-2: 1rem;
-  --space-3: 1.5rem;
-  --space-4: 2.5rem;
-  --space-5: clamp(4rem, 2rem + 6vw, 8rem);
-  --radius-1: 0.75rem;
-  --border-width: 1px;
-  --focus-ring: 3px solid color-mix(in oklch, var(--color-accent), white 25%);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font-synthesis: none;
-  overflow-wrap: break-word;
-  text-wrap: pretty;
+html {
+  background: var(--color-canvas);
+  scrollbar-gutter: stable;
 }
 
 body {
   margin: 0;
   min-block-size: 100svh;
-  background:
-    radial-gradient(
-      circle at 85% 15%,
-      oklch(91% 0.06 165 / 45%),
-      transparent 28rem
-    ),
-    var(--color-surface);
-  font-family: var(--font-body);
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--font-reading);
+  font-size: var(--font-size-body);
+  font-synthesis: none;
+  line-height: var(--line-height-body);
+  overflow-wrap: break-word;
+  text-wrap: pretty;
 }
 
 h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: var(--line-height-tight);
+  text-wrap: balance;
+}
+
 p {
   margin: 0;
 }
 
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-inline-size: 100%;
+}
+
+img,
+video {
+  block-size: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  font-size: max(1rem, 1em);
+  touch-action: manipulation;
+}
+
+button {
+  user-select: none;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration-thickness: var(--border-width);
+  text-underline-offset: 0.18em;
+}
+
 :focus-visible {
-  outline: var(--focus-ring);
-  outline-offset: 3px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+::selection {
+  background: var(--color-accent-subtle);
+  color: var(--color-text);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a {
+    transition: color var(--duration-fast) var(--ease-standard);
+  }
 }
 
 .home {
-  --gutter: var(--space-3);
-  --content: 46rem;
+  --gutter: var(--space-md);
 
   display: grid;
+  align-content: center;
   min-block-size: 100svh;
-  padding-block: var(--space-5);
+  padding-block: var(--space-section);
+  overflow: clip;
   grid-template-columns:
     [full-width-start] minmax(var(--gutter), 1fr)
-    [content-start] min(100% - var(--gutter) * 2, var(--content)) [content-end]
+    [content-start] min(100% - var(--gutter) * 2, var(--measure)) [content-end]
     minmax(var(--gutter), 1fr) [full-width-end];
 }
 
@@ -71,36 +117,29 @@ p {
 
 .home__intro {
   display: grid;
-  align-content: center;
-  gap: var(--space-3);
-  padding: clamp(2rem, 1.25rem + 3vw, 4rem);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-1);
-  background: var(--color-surface-raised);
-  box-shadow: 0 1.5rem 4rem oklch(30% 0.025 70 / 8%);
+  gap: var(--space-md);
 }
 
 .home__eyebrow {
   color: var(--color-accent);
   font-family: var(--font-ui);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: var(--line-height-snug);
+  text-transform: none;
 }
 
 .home__title {
-  max-inline-size: 13ch;
-  font-size: clamp(2.5rem, 1.75rem + 3vw, 4.5rem);
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  line-height: 0.95;
-  text-wrap: balance;
+  max-inline-size: 16ch;
+  font-size: var(--font-size-display);
+  letter-spacing: -0.015em;
+  line-height: var(--line-height-tight);
 }
 
 .home__description {
-  max-inline-size: 42ch;
+  max-inline-size: 52ch;
   color: var(--color-text-muted);
-  font-size: clamp(1.1rem, 1rem + 0.4vw, 1.3rem);
-  line-height: 1.6;
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-relaxed);
 }

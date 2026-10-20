@@ -1,9 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "../styles/globals.css";
 
 export const metadata: Metadata = {
   title: "Individual Wiki",
   description: "A calm place to collect and find your notes."
+};
+
+export const viewport: Viewport = {
+  colorScheme: "light dark"
 };
 
 export default function RootLayout({
