@@ -77,7 +77,7 @@ button {
 a {
   color: var(--color-accent);
   text-decoration-thickness: var(--border-width);
-  text-underline-offset: 0.18em;
+  text-underline-offset: var(--text-underline-offset);
 }
 
 :focus-visible {
@@ -87,7 +87,7 @@ a {
 
 ::selection {
   background: var(--color-selection);
-  color: var(--color-text);
+  color: var(--color-selection-text);
 }
 
 @media (hover: hover) and (pointer: fine) {
