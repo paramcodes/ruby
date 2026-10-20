@@ -73,6 +73,123 @@ export function serializeEditorDocument(editorState: unknown): EditorDocument {
   return { schemaVersion: CURRENT_SCHEMA_VERSION, content };
 }
 
+// Editor commands live here so UI components never reach into a document's
+// JSON. Each command is a small editor operation; the editor owns ids, undo
+// history, and the shape of the blocks it creates.
+export type EditorBlockKind =
+  | "paragraph"
+  | "heading-1"
+  | "heading-2"
+  | "heading-3"
+  | "bullet-list"
+  | "numbered-list"
+  | "checklist"
+  | "quote"
+  | "divider"
+  | "code-block";
+
+export type EditorCommandBlock = {
+  id: string;
+  type: string;
+  content?: unknown;
+  children?: readonly unknown[];
+};
+
+// Structural view of the editor commands this application uses. It keeps the
+// adapter usable without importing the editor at runtime, and makes command
+// tests possible with a small fake.
+export type EditorCommandHost = {
+  domElement?: HTMLElement | undefined;
+  getTextCursorPosition(): { block: EditorCommandBlock };
+  insertBlocks(
+    blocksToInsert: EditorPartialBlockList,
+    referenceBlock: string,
+    placement?: "before" | "after" | "first-child" | "last-child"
+  ): unknown;
+  updateBlock(
+    blockToUpdate: string,
+    update: EditorPartialBlockList[number]
+  ): unknown;
+  moveBlocksUp(blockIdentifier?: string): void;
+  moveBlocksDown(blockIdentifier?: string): void;
+  undo(): boolean;
+  redo(): boolean;
+};
+
+const blockCommands: Record<EditorBlockKind, EditorPartialBlockList[number]> = {
+  paragraph: { type: "paragraph" },
+  "heading-1": { type: "heading", props: { level: 1 } },
+  "heading-2": { type: "heading", props: { level: 2 } },
+  "heading-3": { type: "heading", props: { level: 3 } },
+  "bullet-list": { type: "bulletListItem" },
+  "numbered-list": { type: "numberedListItem" },
+  checklist: { type: "checkListItem", props: { checked: false } },
+  quote: { type: "quote" },
+  divider: { type: "divider" },
+  "code-block": { type: "codeBlock", props: { language: "text" } }
+};
+
+export function createEditorBlock(
+  kind: EditorBlockKind
+): EditorPartialBlockList[number] {
+  return blockCommands[kind];
+}
+
+// Slash-menu insertion replaces the empty paragraph that holds the trigger and
+// otherwise inserts a new sibling after the current block.
+export function insertBlockCommand(
+  editor: EditorCommandHost,
+  kind: EditorBlockKind
+): void {
+  const current = editor.getTextCursorPosition().block;
+  const block = createEditorBlock(kind);
+
+  if (isBlankParagraph(current)) {
+    editor.updateBlock(current.id, block);
+    return;
+  }
+
+  editor.insertBlocks([block], current.id, "after");
+}
+
+// Keyboard block-type commands always convert the current block.
+export function setBlockCommand(
+  editor: EditorCommandHost,
+  kind: EditorBlockKind
+): void {
+  const current = editor.getTextCursorPosition().block;
+  editor.updateBlock(current.id, createEditorBlock(kind));
+}
+
+export function moveBlockCommand(
+  editor: EditorCommandHost,
+  direction: "up" | "down"
+): void {
+  if (direction === "up") {
+    editor.moveBlocksUp();
+    return;
+  }
+
+  editor.moveBlocksDown();
+}
+
+export function undoEditorChange(editor: EditorCommandHost): void {
+  editor.undo();
+}
+
+export function redoEditorChange(editor: EditorCommandHost): void {
+  editor.redo();
+}
+
+function isBlankParagraph(block: EditorCommandBlock): boolean {
+  const content = block.content;
+  const hasContent = Array.isArray(content) && content.length > 0;
+  const hasChildren =
+    Array.isArray(block.children) && block.children.length > 0;
+
+  return block.type === "paragraph" && !hasContent && !hasChildren;
+}
+
 // Parsed content is a list of plain JSON objects. BlockNote accepts those as
 // partial blocks and fills in ids, props, and children that a stored document
 // already carries.

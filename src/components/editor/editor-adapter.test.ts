@@ -1,9 +1,16 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
+  createEditorBlock,
   extractSearchableText,
+  insertBlockCommand,
+  moveBlockCommand,
   parseEditorDocument,
+  redoEditorChange,
   serializeEditorDocument,
+  setBlockCommand,
+  undoEditorChange,
+  type EditorCommandHost,
   type EditorDocument
 } from "./editor-adapter";
 
@@ -228,5 +235,108 @@ describe("extractSearchableText", () => {
 
   it("returns an empty string for an empty document", () => {
     expect(extractSearchableText({ schemaVersion: 1, content: [] })).toBe("");
+  });
+});
+
+function fakeEditor(block: {
+  id: string;
+  type: string;
+  content?: unknown;
+  children?: unknown[];
+}) {
+  const editor: EditorCommandHost = {
+    getTextCursorPosition: () => ({ block }),
+    insertBlocks: vi.fn(),
+    updateBlock: vi.fn(),
+    moveBlocksUp: vi.fn(),
+    moveBlocksDown: vi.fn(),
+    undo: vi.fn(() => true),
+    redo: vi.fn(() => true)
+  };
+
+  return { editor, block };
+}
+
+describe("editor commands", () => {
+  it("maps every block command to a supported partial block", () => {
+    expect(createEditorBlock("paragraph")).toEqual({ type: "paragraph" });
+    expect(createEditorBlock("heading-1")).toEqual({
+      type: "heading",
+      props: { level: 1 }
+    });
+    expect(createEditorBlock("heading-2")).toHaveProperty("props.level", 2);
+    expect(createEditorBlock("heading-3")).toHaveProperty("props.level", 3);
+    expect(createEditorBlock("bullet-list")).toEqual({
+      type: "bulletListItem"
+    });
+    expect(createEditorBlock("numbered-list")).toEqual({
+      type: "numberedListItem"
+    });
+    expect(createEditorBlock("checklist")).toEqual({
+      type: "checkListItem",
+      props: { checked: false }
+    });
+    expect(createEditorBlock("quote")).toEqual({ type: "quote" });
+    expect(createEditorBlock("divider")).toEqual({ type: "divider" });
+    expect(createEditorBlock("code-block")).toEqual({
+      type: "codeBlock",
+      props: { language: "text" }
+    });
+  });
+
+  it("replaces a blank paragraph and inserts after a block with content", () => {
+    const blank = fakeEditor({
+      id: "blank",
+      type: "paragraph",
+      content: [],
+      children: []
+    });
+    insertBlockCommand(blank.editor, "heading-2");
+
+    expect(blank.editor.updateBlock).toHaveBeenCalledWith("blank", {
+      type: "heading",
+      props: { level: 2 }
+    });
+    expect(blank.editor.insertBlocks).not.toHaveBeenCalled();
+
+    const filled = fakeEditor({
+      id: "filled",
+      type: "paragraph",
+      content: [{ type: "text", text: "Keep me", styles: {} }],
+      children: []
+    });
+    insertBlockCommand(filled.editor, "divider");
+
+    expect(filled.editor.updateBlock).not.toHaveBeenCalled();
+    expect(filled.editor.insertBlocks).toHaveBeenCalledWith(
+      [{ type: "divider" }],
+      "filled",
+      "after"
+    );
+  });
+
+  it("routes block, move, undo, and redo commands through the editor", () => {
+    const { block, editor } = fakeEditor({
+      id: "block-1",
+      type: "paragraph",
+      content: [],
+      children: []
+    });
+
+    setBlockCommand(editor, "quote");
+    expect(editor.updateBlock).toHaveBeenCalledWith("block-1", {
+      type: "quote"
+    });
+
+    moveBlockCommand(editor, "up");
+    moveBlockCommand(editor, "down");
+    expect(editor.moveBlocksUp).toHaveBeenCalledTimes(1);
+    expect(editor.moveBlocksDown).toHaveBeenCalledTimes(1);
+
+    undoEditorChange(editor);
+    redoEditorChange(editor);
+    expect(editor.undo).toHaveBeenCalledTimes(1);
+    expect(editor.redo).toHaveBeenCalledTimes(1);
+    expect(block.id).toBe("block-1");
   });
 });
