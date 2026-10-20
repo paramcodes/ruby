@@ -73,7 +73,24 @@ export function validateCreatePageInput(
     return parentId;
   }
 
-  return { ok: true, value: { title: title.value, parentId: parentId.value } };
+  const rawId = value["id"];
+
+  if (rawId === undefined) {
+    return {
+      ok: true,
+      value: { title: title.value, parentId: parentId.value }
+    };
+  }
+
+  const id = validatePageId(rawId);
+  if (!id.ok) {
+    return id;
+  }
+
+  return {
+    ok: true,
+    value: { id: id.value, title: title.value, parentId: parentId.value }
+  };
 }
 
 export function validateMovePageInput(

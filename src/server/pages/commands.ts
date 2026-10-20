@@ -50,11 +50,7 @@ export async function createPage(
       return failure("invalid-parent");
     }
 
-    const newPageId = toPageId(randomUUID());
-
-    if (!newPageId) {
-      throw new Error("randomUUID produced an invalid page id");
-    }
+    const newPageId = parsed.value.id ?? randomPageId();
 
     const created = await repository.insertPage({
       id: newPageId,
@@ -299,6 +295,18 @@ function nextSiblingSortOrder(
     .reduce((max, link) => Math.max(max, link.sortOrder), -1);
 
   return Math.min(highest + 1, MAX_SORT_ORDER);
+}
+
+// A page id is generated for a normal create. The seed passes an explicit id
+// so repeated runs address the same row.
+function randomPageId(): PageId {
+  const pageId = toPageId(randomUUID());
+
+  if (!pageId) {
+    throw new Error("randomUUID produced an invalid page id");
+  }
+
+  return pageId;
 }
 
 function mapValidationError(error: ValidationError): PageCommandError {

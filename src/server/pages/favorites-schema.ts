@@ -12,8 +12,8 @@ import { page } from "./schema";
 
 // A page pinned to the sidebar. The primary key is the (user, page) pair, so a
 // user can favorite a page at most once and re-favoriting is a no-op. The
-// `updated_at` timestamp is bumped when a previously unfavorited page is
-// re-favorited, which keeps the sort-by-recent-favorite order stable.
+// insert uses `onConflictDoNothing`, so `updated_at` keeps the value written
+// by the first favorite and is never bumped.
 export const favorite = pgTable(
   "favorite",
   {

@@ -15,8 +15,9 @@ import type { PageSummary } from "./types";
 const RECENT_LIMIT = 10;
 
 // Only the signed-in user's own, currently active pages can be recorded or
-// listed: `recordRecentPage` guards on ownership, and the listing joins through
-// `workspace.user_id` and filters out archived pages.
+// listed: `recordRecentPage` guards on ownership through `workspace.user_id`,
+// and the listing is scoped by `page_view.user_id` and filters out archived
+// pages.
 export const listRecentPages = cache(
   async (userId: UserId): Promise<PageSummary[]> => {
     const rows = await db

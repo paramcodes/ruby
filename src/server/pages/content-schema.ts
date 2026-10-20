@@ -1,5 +1,7 @@
+import { sql } from "drizzle-orm";
 import {
   foreignKey,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -41,6 +43,13 @@ export const pageContent = pgTable(
       columns: [table.workspaceId, table.pageId],
       foreignColumns: [page.workspaceId, page.id],
       name: "page_content_workspace_page_fk"
-    }).onDelete("cascade")
+    }).onDelete("cascade"),
+    // The content branch of the search query is backed by this expression
+    // index. It has to be declared here so the migration snapshot and the
+    // schema agree on the index.
+    index("page_search_content_idx").using(
+      "gin",
+      sql`to_tsvector('english', ${table.searchText})`
+    )
   ]
 );

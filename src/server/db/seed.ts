@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
 
 import { eq } from "drizzle-orm";
 
@@ -10,21 +11,37 @@ import {
 import { auth } from "@/server/auth/auth";
 import { db } from "@/server/db/client";
 import { user } from "@/server/db/schema";
-import { toPageId } from "@/server/ids";
+import { toPageId, type PageId } from "@/server/ids";
+import { createPage, movePage, renamePage } from "@/server/pages/commands";
 import {
   savePageContent,
   getPageContent
 } from "@/server/pages/content-commands";
-import { page } from "@/server/pages/schema";
-import { ensurePrivateWorkspace } from "@/server/workspaces/queries";
+import { getPageForUser } from "@/server/pages/queries";
 
 // Deterministic seed data for local development. Re-running `pnpm db:seed`
-// is idempotent: pages are upserted and content is overwritten only when the
-// stored document differs from the expected one.
+// is idempotent: pages are created through the page domain commands with
+// deterministic ids, so a second run finds the same rows instead of creating
+// duplicates, and content is overwritten only when the stored document differs
+// from the expected one.
 
-const SEED_EMAIL = "wiki@example.com";
-const SEED_NAME = "Wiki";
-const SEED_PASSWORD = "password1234";
+export type SeedIdentity = {
+  email: string;
+  name: string;
+  password: string;
+};
+
+export type SeedResult = {
+  userId: string;
+  /** The seeded page ids, in seed definition order. */
+  pageIds: PageId[];
+};
+
+const DEFAULT_IDENTITY: SeedIdentity = {
+  email: "wiki@example.com",
+  name: "Wiki",
+  password: "password1234"
+};
 
 // DNS namespace UUID (RFC 4122) used as the base for deterministic page ids.
 const NAMESPACE_DNS = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
@@ -113,13 +130,13 @@ function pageDocument(body: string): EditorDocument {
 // Creates or finds the seed user via Better Auth's server-side API. If the
 // email already exists (a second seed run), the sign-up call throws and we
 // fall back to a direct lookup by email.
-async function ensureUser(): Promise<string> {
+async function ensureUser(identity: SeedIdentity): Promise<string> {
   try {
     const result = await auth.api.signUpEmail({
       body: {
-        email: SEED_EMAIL,
-        password: SEED_PASSWORD,
-        name: SEED_NAME
+        email: identity.email,
+        password: identity.password,
+        name: identity.name
       }
     });
     return result.user.id;
@@ -127,7 +144,7 @@ async function ensureUser(): Promise<string> {
     const existing = await db
       .select({ id: user.id })
       .from(user)
-      .where(eq(user.email, SEED_EMAIL));
+      .where(eq(user.email, identity.email));
 
     const row = existing[0];
     if (!row) {
@@ -137,15 +154,21 @@ async function ensureUser(): Promise<string> {
   }
 }
 
-// Upserts every seed page with a deterministic id and stable hierarchy.
-// Pages are inserted in definition order so parent rows always exist before
-// their children, satisfying the foreign-key constraint on (workspace, parent).
+// Creates every seed page with a deterministic id and a stable hierarchy.
+// The pages are created through the page domain commands, so title validation,
+// the archived-parent check, and workspace ownership all apply. Pages are
+// created in definition order so parent rows always exist before their
+// children, satisfying the foreign-key constraint on (workspace, parent).
 async function upsertPages(userId: string): Promise<Map<string, string>> {
-  const workspaceId = await ensurePrivateWorkspace(userId);
   const ids = new Map<string, string>();
 
   for (const def of seedPages) {
-    const id = uuidv5(userId, def.key);
+    const id = toPageId(uuidv5(userId, def.key));
+
+    if (!id) {
+      throw new Error(`Could not build a page id for seed page ${def.key}`);
+    }
+
     ids.set(def.key, id);
 
     const parentId = def.parentKey
@@ -156,30 +179,60 @@ async function upsertPages(userId: string): Promise<Map<string, string>> {
       throw new Error(`Missing parent page: ${def.parentKey}`);
     }
 
-    const precedingSiblings = seedPages
-      .slice(0, seedPages.indexOf(def))
-      .filter((p) => p.parentKey === def.parentKey).length;
+    const existing = await getPageForUser(userId, id);
 
-    await db
-      .insert(page)
-      .values({
-        id,
-        workspaceId,
-        parentId,
-        title: def.title,
-        sortOrder: precedingSiblings
-      })
-      .onConflictDoUpdate({
-        target: [page.id],
-        set: {
-          title: def.title,
-          parentId,
-          sortOrder: precedingSiblings
-        }
-      });
+    if (existing) {
+      // An earlier run already created this page. Keep it in sync with the
+      // seed definition instead of creating a second row.
+      await syncExistingPage(userId, id, def, parentId, existing);
+      continue;
+    }
+
+    const created = await createPage(userId, {
+      id,
+      title: def.title,
+      parentId
+    });
+
+    if (!created.ok) {
+      throw new Error(
+        `Could not create seed page ${def.key}: ${created.error}`
+      );
+    }
   }
 
   return ids;
+}
+
+// Brings an already seeded page back in line with the seed definition.
+async function syncExistingPage(
+  userId: string,
+  id: PageId,
+  def: SeedPageDef,
+  parentId: PageId | null,
+  existing: { title: string; parentId: PageId | null; sortOrder: number }
+): Promise<void> {
+  if (existing.title !== def.title) {
+    const renamed = await renamePage(userId, id, def.title);
+
+    if (!renamed.ok) {
+      throw new Error(
+        `Could not rename seed page ${def.key}: ${renamed.error}`
+      );
+    }
+  }
+
+  if (existing.parentId !== parentId) {
+    const moved = await movePage(userId, {
+      pageId: id,
+      parentId,
+      sortOrder: existing.sortOrder
+    });
+
+    if (!moved.ok) {
+      throw new Error(`Could not move seed page ${def.key}: ${moved.error}`);
+    }
+  }
 }
 
 // Saves editor content for each seed page, but only when the stored document
@@ -218,11 +271,31 @@ async function seedContent(
   }
 }
 
-async function main(): Promise<void> {
-  const userId = await ensureUser();
+// Seeds the workspace of the given identity. Safe to call repeatedly: the
+// pages, their ids, and their content revisions stay the same.
+export async function runSeed(identity: SeedIdentity): Promise<SeedResult> {
+  const userId = await ensureUser(identity);
   const ids = await upsertPages(userId);
   await seedContent(userId, ids);
-  console.log("Seed complete");
+
+  const pageIds: PageId[] = [];
+
+  for (const def of seedPages) {
+    const id = toPageId(ids.get(def.key) ?? "");
+
+    if (!id) {
+      throw new Error(`Missing seeded page id for ${def.key}`);
+    }
+
+    pageIds.push(id);
+  }
+
+  return { userId, pageIds };
+}
+
+async function main(): Promise<void> {
+  const result = await runSeed(DEFAULT_IDENTITY);
+  console.log(`Seed complete: ${result.pageIds.length} pages`);
   // The db proxy binds function values, which strips methods like `.end()`
   // from the postgres client. Access the raw client through the session,
   // which is an internal property not surfaced by Drizzle's types.
@@ -231,7 +304,15 @@ async function main(): Promise<void> {
   ).session.client.end();
 }
 
-main().catch((error: unknown) => {
-  console.error("Seed failed:", error);
-  process.exit(1);
-});
+// The seed is also imported by its test, so it only runs as a script.
+const entryPoint = process.argv[1];
+const runsAsScript =
+  entryPoint !== undefined &&
+  import.meta.url === pathToFileURL(entryPoint).href;
+
+if (runsAsScript) {
+  main().catch((error: unknown) => {
+    console.error("Seed failed:", error);
+    process.exit(1);
+  });
+}

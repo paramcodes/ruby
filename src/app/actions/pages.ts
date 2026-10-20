@@ -53,7 +53,12 @@ export async function createPageAction(
     return failure("unauthenticated");
   }
 
-  const parsed = validateCreatePageInput(input);
+  // Only the seed may choose a page id, so the action validates and passes
+  // its own input shape and the command generates the id.
+  const parsed = validateCreatePageInput({
+    title: input.title,
+    parentId: input.parentId
+  });
 
   if (!parsed.ok) {
     return failure(
@@ -61,7 +66,12 @@ export async function createPageAction(
     );
   }
 
-  return respond(await createPage(user.id, parsed.value));
+  return respond(
+    await createPage(user.id, {
+      title: parsed.value.title,
+      parentId: parsed.value.parentId
+    })
+  );
 }
 
 export async function renamePageAction(

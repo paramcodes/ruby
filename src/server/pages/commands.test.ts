@@ -198,6 +198,34 @@ describe.skipIf(!hasDatabase)("page commands", () => {
         (await listArchivedPagesForUser(userA)).map((item) => item.id)
       ).toEqual([parent.id]);
     });
+
+    it("creates a page with an explicit id and keeps the ownership rules", async () => {
+      const id = asPageId(randomUUID());
+
+      const created = unwrap(
+        await createPage(userA, { id, title: "Seeded page", parentId: null })
+      );
+
+      expect(created.id).toBe(id);
+
+      await expect(
+        createPage(userA, {
+          id: " padded id " as PageId,
+          title: "Bad id",
+          parentId: null
+        })
+      ).resolves.toEqual({ ok: false, error: "not-found" });
+
+      const otherUsersPage = await create(userB, "Private parent");
+
+      await expect(
+        createPage(userA, {
+          id,
+          title: "Stolen parent",
+          parentId: otherUsersPage.id
+        })
+      ).resolves.toEqual({ ok: false, error: "invalid-parent" });
+    });
   });
 
   describe("renamePage", () => {

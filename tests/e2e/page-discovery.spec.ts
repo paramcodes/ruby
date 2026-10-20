@@ -77,10 +77,6 @@ test("recently visited pages appear in the sidebar recent list", async ({
   await page.getByRole("button", { name: "Create your first page" }).click();
   await expect(page).toHaveURL(/\/pages\/[^/]+$/);
 
-  // The page route records a recent view asynchronously; allow the write to
-  // commit before navigating away.
-  await page.waitForTimeout(1_000);
-
   await page.goto("/");
   await page.waitForLoadState("networkidle");
 

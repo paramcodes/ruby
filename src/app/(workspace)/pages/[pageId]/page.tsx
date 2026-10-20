@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { after } from "next/server";
 
 import { savePageContentAction } from "@/app/actions/page-content";
 import { FavoriteToggle } from "@/components/workspace/favorite-toggle";
@@ -41,8 +42,22 @@ export default async function PageRoute({ params }: PageRouteProps) {
 
   // Record this visit for the "Recent" list. Only active pages are recorded, so
   // the archived filter in the listing stays the single source of truth.
+  //
+  // The write runs after the response is sent: a floating promise could be
+  // cut off when the request ends, and a rejected insert would be swallowed.
+  // `after()` keeps the request alive until the write settles, and the catch
+  // turns a failure into a log line instead of a silent loss.
   if (page.archivedAt === null) {
-    void recordRecentPage(user.id, page.id);
+    after(async () => {
+      try {
+        await recordRecentPage(user.id, page.id);
+      } catch (error) {
+        console.error("Failed to record the recent page view", {
+          pageId: page.id,
+          error
+        });
+      }
+    });
   }
 
   const content = await getPageContent(user.id, parsedId);

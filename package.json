@@ -27,7 +27,7 @@
     "db:down": "docker compose down",
     "db:generate": "DATABASE_URL=${DATABASE_URL:-postgres://wiki:wiki@localhost:5432/wiki} drizzle-kit generate",
     "db:migrate": "DATABASE_URL=${DATABASE_URL:-postgres://wiki:wiki@localhost:5432/wiki} drizzle-kit migrate",
-    "db:seed": "tsx --conditions react-server src/server/db/seed.ts",
+    "db:seed": "DATABASE_URL=${DATABASE_URL:-postgres://wiki:wiki@localhost:5432/wiki} tsx --conditions react-server src/server/db/seed.ts",
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {

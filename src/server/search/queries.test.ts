@@ -1,7 +1,7 @@
 // @vitest-environment node
 
 import { randomUUID } from "node:crypto";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import {
   afterAll,
   beforeAll,
@@ -24,7 +24,7 @@ import { pageContent } from "@/server/pages/content-schema";
 import { page } from "@/server/pages/schema";
 import { ensurePrivateWorkspace } from "@/server/workspaces/queries";
 
-import { searchPages } from "./queries";
+import { buildSearchQuery, searchPages } from "./queries";
 
 vi.mock("server-only", () => ({}));
 
@@ -193,5 +193,52 @@ describe.skipIf(!hasDatabase)("searchPages", () => {
     const results = await searchPages(userA, "normal");
 
     expect(results[0]?.favorited).toBe(false);
+  });
+
+  it("plans the search query with both full-text GIN indexes", async () => {
+    // Enough rows for the planner to weigh the GIN index against a
+    // sequential scan, and a term only these rows contain.
+    const inserted = await db
+      .insert(page)
+      .values(
+        Array.from({ length: 300 }, (_unused, index) => ({
+          id: randomUUID(),
+          workspaceId: workspaceA,
+          parentId: null,
+          title: `Indexed Field Note ${index}`,
+          sortOrder: index
+        }))
+      )
+      .returning({ id: page.id });
+
+    await db.insert(pageContent).values(
+      inserted.map((row) => ({
+        pageId: row.id,
+        workspaceId: workspaceA,
+        document: documentWith("Indexed body text"),
+        revision: 1,
+        searchText: "Indexed body text"
+      }))
+    );
+
+    // Fresh statistics so the planner costs the index scan against the real
+    // table size.
+    await db.execute(sql`analyze page`);
+    await db.execute(sql`analyze page_content`);
+
+    const planText = await db.transaction(async (tx) => {
+      // A sequential scan is disabled so the assertion is about which index
+      // the query can use, not about how large the table happens to be.
+      await tx.execute(sql`set local enable_seqscan = off`);
+
+      const plan = await tx.execute<{ "QUERY PLAN": string }>(
+        sql`EXPLAIN ${buildSearchQuery(userA, "indexed")}`
+      );
+
+      return plan.map((row) => row["QUERY PLAN"]).join("\n");
+    });
+
+    expect(planText).toContain("page_search_title_idx");
+    expect(planText).toContain("page_search_content_idx");
   });
 });

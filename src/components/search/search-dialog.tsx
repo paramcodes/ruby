@@ -63,21 +63,36 @@ export function SearchDialog() {
       setLoading(true);
       setError(null);
 
-      const result = await searchAction(query);
+      try {
+        const result = await searchAction(query);
 
-      if (requestRef.current !== myRequest) {
-        // A newer query replaced this one; discard the stale result.
-        return;
-      }
+        if (requestRef.current !== myRequest) {
+          // A newer query replaced this one; discard the stale result.
+          return;
+        }
 
-      setLoading(false);
+        setLoading(false);
 
-      if (result.ok) {
-        setResults(result.results);
-      } else if (result.error === "too-long") {
-        setError("Search query is too long.");
-      } else {
+        if (result.ok) {
+          setResults(result.results);
+        } else if (result.error === "too-long") {
+          setError("Search query is too long.");
+          setResults([]);
+        } else if (result.error === "unauthenticated") {
+          setError("Your session has expired. Sign in again to search.");
+          setResults([]);
+        } else {
+          setResults([]);
+        }
+      } catch {
+        if (requestRef.current !== myRequest) {
+          return;
+        }
+
+        // A rejected request must not leave the dialog stuck on "Searching…".
+        setLoading(false);
         setResults([]);
+        setError("Search failed. Please try again.");
       }
     }, DEBOUNCE_MS);
 
@@ -90,7 +105,10 @@ export function SearchDialog() {
   const visibleError = query.length === 0 ? null : error;
 
   const hasNoResults =
-    !loading && visibleResults.length === 0 && query.length > 0;
+    !loading &&
+    visibleError === null &&
+    visibleResults.length === 0 &&
+    query.length > 0;
 
   function handleSelect(): void {
     setQuery("");

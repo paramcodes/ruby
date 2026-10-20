@@ -18,6 +18,11 @@ export type PageRecord = PageSummary & {
 };
 
 export type CreatePageInput = {
+  /**
+   * Optional explicit id. The seed needs deterministic ids so a repeated run
+   * updates the same rows; a normal create lets the command generate one.
+   */
+  id?: PageId;
   title: string;
   parentId: PageId | null;
 };

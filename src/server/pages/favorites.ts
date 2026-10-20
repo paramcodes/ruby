@@ -12,9 +12,10 @@ import { favorite } from "./favorites-schema";
 import { page } from "./schema";
 import type { PageSummary } from "./types";
 
-// A favorite is an owned page pinned to the sidebar. Every query joins through
-// `workspace.user_id` so a user can only ever read their own favorites; the
-// ownership guard in `addFavorite` makes the same true of writes.
+// A favorite is an owned page pinned to the sidebar. The reads are scoped by
+// `favorite.user_id`, so a user only ever sees their own favorites. The write
+// in `addFavorite` additionally checks that the page belongs to the user
+// through `workspace.user_id`.
 export const listFavorites = cache(
   async (userId: UserId): Promise<PageSummary[]> => {
     const rows = await db

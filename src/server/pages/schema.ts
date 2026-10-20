@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   foreignKey,
   index,
@@ -46,6 +47,13 @@ export const page = pgTable(
       table.workspaceId,
       table.parentId,
       table.sortOrder
+    ),
+    // The title branch of the search query is backed by this expression
+    // index. It has to be declared here so the migration snapshot and the
+    // schema agree on the index.
+    index("page_search_title_idx").using(
+      "gin",
+      sql`to_tsvector('english', ${table.title})`
     )
   ]
 );
