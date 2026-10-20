@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const port = 3000;
+// Port 3000 is commonly held by another local service. A dedicated port keeps
+// Playwright from reusing an unrelated dev server.
+const port = 3100;
 const baseURL = `http://127.0.0.1:${port}`;
 
 export default defineConfig({
@@ -29,7 +31,8 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
-      BETTER_AUTH_RATE_LIMIT_DISABLED: "true"
+      BETTER_AUTH_RATE_LIMIT_DISABLED: "true",
+      BETTER_AUTH_URL: baseURL
     }
   }
 });

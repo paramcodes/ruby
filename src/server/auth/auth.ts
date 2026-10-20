@@ -39,7 +39,11 @@ function getTrustedOrigins(): string[] {
       [
         process.env.BETTER_AUTH_URL,
         "http://localhost:3000",
-        "http://127.0.0.1:3000"
+        "http://127.0.0.1:3000",
+        // Playwright runs its own dev server on this port so it never reuses
+        // an unrelated process that may already hold 3000.
+        "http://localhost:3100",
+        "http://127.0.0.1:3100"
       ]
         .map(normalizeOrigin)
         .filter((origin): origin is string => origin !== null)

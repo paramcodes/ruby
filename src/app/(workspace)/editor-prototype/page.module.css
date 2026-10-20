@@ -1,0 +1,40 @@
+.page {
+  display: grid;
+  gap: var(--space-xl);
+  max-inline-size: 72rem;
+}
+
+.header {
+  display: grid;
+  gap: var(--space-sm);
+  max-inline-size: var(--measure-lead);
+}
+
+.eyebrow {
+  color: var(--color-accent);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+}
+
+.title {
+  font-size: var(--font-size-title);
+  letter-spacing: var(--letter-spacing-title);
+}
+
+.lead {
+  color: var(--color-text-muted);
+  line-height: var(--line-height-body);
+}
+
+.note {
+  color: var(--color-text-subtle);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+}
+
+.note code {
+  font-size: inherit;
+}
