@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
@@ -86,7 +88,7 @@ describe("Button", () => {
   it("renders its child element when asChild is set", () => {
     render(
       <Button asChild>
-        <a href="/pages/example">Open page</a>
+        <Link href="/pages/example">Open page</Link>
       </Button>
     );
 

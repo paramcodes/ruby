@@ -1,0 +1,55 @@
+.actions {
+  display: grid;
+  justify-items: end;
+  gap: var(--space-3xs);
+}
+
+.error {
+  max-inline-size: var(--measure-lead);
+  color: var(--color-danger);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-sm);
+  justify-items: start;
+}
+
+.form > :first-child {
+  inline-size: 100%;
+}
+
+.field {
+  display: grid;
+  gap: var(--space-3xs);
+  inline-size: 100%;
+  font-family: var(--font-ui);
+}
+
+.label {
+  color: var(--color-text);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+}
+
+.select {
+  inline-size: 100%;
+  padding-block: var(--space-2xs);
+  padding-inline: var(--space-xs);
+  border: var(--border-width) solid var(--color-border-interactive);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+}
+
+.select:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}

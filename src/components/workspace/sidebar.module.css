@@ -1,0 +1,101 @@
+.sidebar {
+  display: grid;
+  gap: var(--space-md);
+  align-content: start;
+  padding: var(--space-md);
+  border-inline-end: var(--border-width) solid var(--color-border);
+  background: var(--color-surface);
+  overflow-y: auto;
+}
+
+.header {
+  display: grid;
+  gap: var(--space-3xs);
+}
+
+.brand {
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: var(--font-size-large);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-title);
+  text-decoration: none;
+}
+
+.workspace {
+  color: var(--color-text-subtle);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+}
+
+.createForm {
+  display: grid;
+  gap: var(--space-2xs);
+  justify-items: start;
+}
+
+.createForm > :first-child {
+  inline-size: 100%;
+}
+
+.placeholders {
+  display: grid;
+  gap: var(--space-sm);
+  padding-block-start: var(--space-sm);
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.placeholder {
+  display: grid;
+  gap: var(--space-3xs);
+}
+
+.placeholderTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2xs);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+}
+
+.badge {
+  padding-block: 0;
+  padding-inline: var(--space-3xs);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-small);
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-small);
+  font-weight: normal;
+}
+
+.placeholderText {
+  max-inline-size: var(--measure-lead);
+  color: var(--color-text-subtle);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+}
+
+@media (max-width: 48rem) {
+  .sidebar {
+    border-inline-end: 0;
+    border-block-end: var(--border-width) solid var(--color-border);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .brand:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .brand {
+    transition: color var(--duration-fast) var(--ease-standard);
+  }
+}

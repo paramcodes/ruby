@@ -1,0 +1,56 @@
+.page {
+  display: grid;
+  gap: var(--space-xl);
+  max-inline-size: var(--measure);
+}
+
+.header {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.eyebrow {
+  color: var(--color-accent);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+}
+
+.title {
+  font-size: var(--font-size-title);
+  letter-spacing: var(--letter-spacing-title);
+  overflow-wrap: anywhere;
+}
+
+.archived {
+  max-inline-size: var(--measure-lead);
+  padding: var(--space-sm);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+}
+
+.body {
+  display: grid;
+  gap: var(--space-sm);
+  padding-block-start: var(--space-md);
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+}
+
+.placeholder {
+  max-inline-size: var(--measure-lead);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-body);
+}

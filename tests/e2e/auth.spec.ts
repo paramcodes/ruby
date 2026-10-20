@@ -1,11 +1,8 @@
-import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 
-test.describe.configure({ mode: "serial" });
+import { uniqueEmail } from "./auth-helpers";
 
-function uniqueEmail(prefix: string): string {
-  return `${prefix}-${randomUUID()}@example.com`;
-}
+test.describe.configure({ mode: "serial" });
 
 test("redirects unauthenticated visitors to sign-in", async ({ page }) => {
   await page.goto("/dashboard");
