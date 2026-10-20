@@ -13,12 +13,19 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:db": "DATABASE_URL=${DATABASE_URL:-postgres://wiki:wiki@localhost:5432/wiki} vitest run src/server/db/client.test.ts",
     "test:e2e": "playwright test",
     "build": "next build",
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "db:generate": "DATABASE_URL=${DATABASE_URL:-postgres://wiki:wiki@localhost:5432/wiki} drizzle-kit generate",
+    "db:migrate": "DATABASE_URL=${DATABASE_URL:-postgres://wiki:wiki@localhost:5432/wiki} drizzle-kit migrate",
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
+    "drizzle-orm": "^0.45.4",
     "next": "16.4.2",
+    "postgres": "^3.4.9",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
@@ -30,6 +37,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.2",
+    "drizzle-kit": "^0.31.11",
     "eslint": "9.39.1",
     "eslint-config-next": "16.4.2",
     "jsdom": "30.1.3",

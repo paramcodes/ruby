@@ -61,3 +61,10 @@ Tests  1 passed (1)
 - The current `eslint-config-next` dependency tree requires ESLint 9.39.1. pnpm reports that version as deprecated during installation; ESLint 10 creates peer-dependency conflicts with its bundled plugins. Linting itself passes without warnings.
 - There are no browser test specifications in Task 1. `test:e2e` is configured with a local Playwright web server for the browser checks added in Task 16. A direct Python Playwright smoke attempt could not run because this environment lacks the Python `playwright` module; the local HTTP smoke check passed instead.
 - Prettier ignores `docs/` because pre-existing roadmap and plan files do not match the configured Prettier style. Application, configuration, workflow, and lockfile formatting are checked in CI.
+
+## Fix report (review finding)
+
+- Finding: `playwright.config.ts:20` `webServer.command` used `pnpm dev -- --port ${port}`; pnpm forwarded a literal `--`, making Next.js treat `--port` as a project directory.
+- Change: set command to `pnpm dev --port ${port}`.
+- Verification: `pnpm lint && pnpm typecheck && pnpm test && pnpm build` passed; `pnpm dev --port 3000` started and served the home page.
+- Commit: 1462054dbcae85e41544ba1ea070b58633ed4793
