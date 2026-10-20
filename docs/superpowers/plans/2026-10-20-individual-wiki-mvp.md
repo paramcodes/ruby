@@ -254,6 +254,7 @@ Implement each behavior test-first: add the focused failing test, run it to conf
 **Files:**
 - Create: `src/server/pages/favorites.ts`, `src/server/pages/recent-pages.ts`
 - Create: `src/components/workspace/favorites-list.tsx`, `recent-pages-list.tsx`
+- Modify: `src/components/workspace/sidebar.tsx`, `src/app/(workspace)/pages/[pageId]/page.tsx`
 - Create: migration for favorites and recent activity.
 - Test: `src/server/pages/favorites.test.ts`, `src/server/pages/recent-pages.test.ts`
 
@@ -272,6 +273,7 @@ Implement each behavior test-first: add the focused failing test, run it to conf
 **Files:**
 - Create: `src/server/search/queries.ts`, `src/server/search/validation.ts`
 - Create: `src/components/search/search-dialog.tsx`, `src/server/db/seed.ts`
+- Modify: `src/components/workspace/sidebar.tsx`
 - Create: `tests/e2e/page-discovery.spec.ts` and full-text-index migration.
 - Modify: `package.json`
 
