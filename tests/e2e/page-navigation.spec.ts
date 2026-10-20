@@ -16,7 +16,7 @@ test("creates, renames, archives, restores, and isolates pages", async ({
   ).toBeVisible();
 
   const main = page.getByRole("main");
-  await main.getByLabel("New page title").fill("Field notes");
+  await main.getByLabel("First page title").fill("Field notes");
   await main.getByRole("button", { name: "Create your first page" }).click();
 
   await expect(page).toHaveURL(/\/pages\/[^/]+$/);

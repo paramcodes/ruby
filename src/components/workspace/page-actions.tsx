@@ -48,6 +48,7 @@ export function PageActions({ page, pages }: PageActionsProps) {
   const [moveOpen, setMoveOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState("");
   const [titleDraft, setTitleDraft] = useState(page.title);
   const [parentDraft, setParentDraft] = useState(page.parentId ?? "");
   const [formError, setFormError] = useState<string | null>(null);
@@ -118,6 +119,7 @@ export function PageActions({ page, pages }: PageActionsProps) {
   async function archive() {
     setPending(true);
     setError(null);
+    setAnnouncement("");
     const result = await archivePageAction(page.id);
     setPending(false);
 
@@ -126,12 +128,14 @@ export function PageActions({ page, pages }: PageActionsProps) {
       return;
     }
 
+    setAnnouncement(`Page "${page.title}" archived.`);
     router.refresh();
   }
 
   async function restore() {
     setPending(true);
     setError(null);
+    setAnnouncement("");
     const result = await restorePageAction(page.id);
     setPending(false);
 
@@ -140,6 +144,7 @@ export function PageActions({ page, pages }: PageActionsProps) {
       return;
     }
 
+    setAnnouncement(`Page "${page.title}" restored.`);
     router.refresh();
   }
 
@@ -180,6 +185,10 @@ export function PageActions({ page, pages }: PageActionsProps) {
           {error}
         </p>
       ) : null}
+
+      <p aria-live="polite" className={styles.announcement} role="status">
+        {announcement}
+      </p>
 
       <Dialog
         description="The new title appears everywhere this page is listed."

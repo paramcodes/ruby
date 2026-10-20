@@ -9,6 +9,8 @@ import type { PageSummary } from "@/server/pages/types";
 import styles from "./page-tree.module.css";
 
 export type PageTreeProps = {
+  /** Accessible name for the navigation landmark. */
+  label?: string;
   /** Active and archived pages. Archived pages render in a separate section. */
   pages: readonly PageSummary[];
   activePageId?: string | null;
@@ -17,6 +19,7 @@ export type PageTreeProps = {
 
 export function PageTree({
   activePageId = null,
+  label = "Pages",
   pages,
   renderPageActions
 }: PageTreeProps) {
@@ -115,7 +118,7 @@ export function PageTree({
 
   return (
     <div className={styles.tree}>
-      <nav aria-label="Pages">{renderItems(null)}</nav>
+      <nav aria-label={label}>{renderItems(null)}</nav>
       {archivedPages.length > 0 ? (
         <section aria-labelledby={archiveHeadingId} className={styles.archive}>
           <h2 className={styles.archiveHeading} id={archiveHeadingId}>

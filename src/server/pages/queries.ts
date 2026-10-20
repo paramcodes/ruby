@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { and, asc, eq, isNotNull, isNull } from "drizzle-orm";
 
 import type { UserId } from "@/server/auth/types";
@@ -31,29 +32,33 @@ type SummaryRow = {
   archivedAt: Date | null;
 };
 
-export async function listPagesForUser(userId: UserId): Promise<PageSummary[]> {
-  const rows = await db
-    .select(summaryColumns)
-    .from(page)
-    .innerJoin(workspace, eq(page.workspaceId, workspace.id))
-    .where(and(eq(workspace.userId, userId), isNull(page.archivedAt)))
-    .orderBy(asc(page.sortOrder), asc(page.title), asc(page.id));
+// `cache()` deduplicates each list within a single request, so a workspace
+// layout and its page share one query per list instead of querying twice.
+export const listPagesForUser = cache(
+  async (userId: UserId): Promise<PageSummary[]> => {
+    const rows = await db
+      .select(summaryColumns)
+      .from(page)
+      .innerJoin(workspace, eq(page.workspaceId, workspace.id))
+      .where(and(eq(workspace.userId, userId), isNull(page.archivedAt)))
+      .orderBy(asc(page.sortOrder), asc(page.title), asc(page.id));
 
-  return rows.map(toSummary);
-}
+    return rows.map(toSummary);
+  }
+);
 
-export async function listArchivedPagesForUser(
-  userId: UserId
-): Promise<PageSummary[]> {
-  const rows = await db
-    .select(summaryColumns)
-    .from(page)
-    .innerJoin(workspace, eq(page.workspaceId, workspace.id))
-    .where(and(eq(workspace.userId, userId), isNotNull(page.archivedAt)))
-    .orderBy(asc(page.sortOrder), asc(page.title), asc(page.id));
+export const listArchivedPagesForUser = cache(
+  async (userId: UserId): Promise<PageSummary[]> => {
+    const rows = await db
+      .select(summaryColumns)
+      .from(page)
+      .innerJoin(workspace, eq(page.workspaceId, workspace.id))
+      .where(and(eq(workspace.userId, userId), isNotNull(page.archivedAt)))
+      .orderBy(asc(page.sortOrder), asc(page.title), asc(page.id));
 
-  return rows.map(toSummary);
-}
+    return rows.map(toSummary);
+  }
+);
 
 export async function getPageForUser(
   userId: UserId,

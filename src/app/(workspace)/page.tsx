@@ -48,7 +48,10 @@ export default async function WorkspaceHomePage() {
             Give the page a short title. You can rename it, move it, or archive
             it at any time.
           </p>
-          <CreatePageForm submitLabel="Create your first page" />
+          <CreatePageForm
+            fieldLabel="First page title"
+            submitLabel="Create your first page"
+          />
         </section>
       ) : (
         <section aria-labelledby="all-pages-heading" className={styles.section}>
@@ -62,7 +65,7 @@ export default async function WorkspaceHomePage() {
                 : `${activePages.length} active pages`}
             </p>
           </div>
-          <PageTree pages={pages} />
+          <PageTree label="All pages" pages={pages} />
         </section>
       )}
     </div>

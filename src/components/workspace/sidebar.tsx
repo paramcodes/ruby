@@ -60,11 +60,13 @@ export function Sidebar({ pages }: SidebarProps) {
 }
 
 export type CreatePageFormProps = {
+  fieldLabel?: string;
   parentId?: string | null;
   submitLabel?: string;
 };
 
 export function CreatePageForm({
+  fieldLabel = "New page title",
   parentId = null,
   submitLabel = "Create page"
 }: CreatePageFormProps) {
@@ -93,7 +95,7 @@ export function CreatePageForm({
   return (
     <form className={styles.createForm} onSubmit={submit}>
       <Input
-        label="New page title"
+        label={fieldLabel}
         onChange={(event) => setTitle(event.target.value)}
         required
         value={title}
