@@ -28,7 +28,11 @@
   box-shadow: var(--shadow-raised);
 }
 
-.prototype :global(.bn-root) {
+/* BlockNote sets the same variables on `.bn-root` and on
+   `.bn-root[data-color-scheme="dark"]`. The extra `.editorFrame` class raises
+   this rule above both, so the token mapping wins in either color scheme
+   regardless of stylesheet order. */
+.prototype .editorFrame :global(.bn-root) {
   --bn-font-family: var(--font-reading);
   --bn-colors-editor-text: var(--color-text);
   --bn-colors-editor-background: transparent;

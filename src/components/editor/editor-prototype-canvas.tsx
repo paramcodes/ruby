@@ -2,7 +2,6 @@
 
 import { BlockNoteViewRaw, ComponentsContext } from "@blocknote/react";
 import { useCreateBlockNote } from "@blocknote/react";
-import type { PartialBlock } from "@blocknote/core";
 import { useMemo, useState } from "react";
 
 import "@blocknote/react/style.css";
@@ -13,13 +12,14 @@ import {
   extractSearchableText,
   parseEditorDocument,
   serializeEditorDocument,
-  type EditorDocument
+  type EditorDocument,
+  type EditorPartialBlockList
 } from "./editor-adapter";
 
 // Fixture data deliberately covers every block the writing flow must support.
 // It is the starting point for the manual checklist in
 // docs/editor-prototype-checklist.md.
-const fixture: PartialBlock[] = [
+const fixture: EditorPartialBlockList = [
   {
     type: "heading",
     props: { level: 1 },
@@ -75,7 +75,7 @@ const fixture: PartialBlock[] = [
   {
     type: "codeBlock",
     props: { language: "typescript" },
-    content: "const revision = savePageContent(userId, pageId, document, 1);"
+    content: "const revision = savePageContent(userId, pageId, document, 0);"
   },
   { type: "divider" },
   {

@@ -106,7 +106,7 @@ describe.skipIf(!hasDatabase)("page content commands", () => {
     const first = documentWith("First draft");
 
     await expect(
-      savePageContent(userA, pageId, first, 1)
+      savePageContent(userA, pageId, first, 0)
     ).resolves.toMatchObject({
       status: "saved",
       revision: 1
@@ -134,13 +134,14 @@ describe.skipIf(!hasDatabase)("page content commands", () => {
     });
   });
 
-  it("returns the empty document at revision 1 before the first save", async () => {
+  it("returns the empty document at revision 0 before the first save", async () => {
     const pageId = await createPageFor(userA, "Untouched");
 
     await expect(getPageContent(userA, pageId)).resolves.toMatchObject({
       status: "ok",
       document: { schemaVersion: 1, content: [] },
-      revision: 1
+      revision: 0,
+      updatedAt: null
     });
   });
 
@@ -151,7 +152,7 @@ describe.skipIf(!hasDatabase)("page content commands", () => {
       content: undefined
     } as unknown as EditorDocument;
 
-    const result = await savePageContent(userA, pageId, malformed, 1);
+    const result = await savePageContent(userA, pageId, malformed, 0);
 
     expect(result.status).toBe("invalid");
     expect(result).toMatchObject({ status: "invalid" });
@@ -169,7 +170,7 @@ describe.skipIf(!hasDatabase)("page content commands", () => {
     const missingPageId = asPageId(randomUUID());
     const document = documentWith("Should not land");
 
-    const ownerSave = await savePageContent(userA, pageId, document, 1);
+    const ownerSave = await savePageContent(userA, pageId, document, 0);
     expect(ownerSave.status).toBe("saved");
 
     const crossUserSave = await savePageContent(userB, pageId, document, 2);
@@ -206,10 +207,10 @@ describe.skipIf(!hasDatabase)("page content commands", () => {
     const second = documentWith("Tab two");
     const stale = documentWith("Stale tab");
 
-    await savePageContent(userA, pageId, first, 1);
+    await savePageContent(userA, pageId, first, 0);
     await savePageContent(userA, pageId, second, 1);
 
-    await expect(savePageContent(userA, pageId, stale, 1)).resolves.toEqual({
+    await expect(savePageContent(userA, pageId, stale, 0)).resolves.toEqual({
       status: "conflict",
       currentRevision: 2
     });
@@ -219,6 +220,34 @@ describe.skipIf(!hasDatabase)("page content commands", () => {
       document: second,
       revision: 2
     });
+  });
+
+  it("conflicts on the second of two saves that both expect revision 0", async () => {
+    const pageId = await createPageFor(userA, "Two tabs");
+    const firstDraft = documentWith("Tab one draft");
+    const secondDraft = documentWith("Tab two draft");
+
+    await expect(
+      savePageContent(userA, pageId, firstDraft, 0)
+    ).resolves.toMatchObject({ status: "saved", revision: 1 });
+
+    await expect(
+      savePageContent(userA, pageId, secondDraft, 0)
+    ).resolves.toEqual({ status: "conflict", currentRevision: 1 });
+
+    await expect(getPageContent(userA, pageId)).resolves.toMatchObject({
+      status: "ok",
+      document: firstDraft,
+      revision: 1
+    });
+
+    const rows = await db
+      .select({ document: pageContent.document })
+      .from(pageContent)
+      .where(eq(pageContent.pageId, pageId));
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.document).toEqual(firstDraft);
   });
 
   it("writes search text derived from the whole nested document", async () => {
@@ -251,7 +280,7 @@ describe.skipIf(!hasDatabase)("page content commands", () => {
       ]
     };
 
-    await savePageContent(userA, pageId, document, 1);
+    await savePageContent(userA, pageId, document, 0);
 
     const rows = await db
       .select({ searchText: pageContent.searchText })
@@ -266,7 +295,7 @@ describe.skipIf(!hasDatabase)("page content commands", () => {
   it("reports an invalid or unsupported stored document instead of throwing", async () => {
     const pageId = await createPageFor(userA, "Corrupt");
 
-    await savePageContent(userA, pageId, documentWith("Good"), 1);
+    await savePageContent(userA, pageId, documentWith("Good"), 0);
 
     await db
       .update(pageContent)
@@ -289,7 +318,7 @@ describe.skipIf(!hasDatabase)("page content commands", () => {
 
   it("stores the workspace that owns the page", async () => {
     const pageId = await createPageFor(userA, "Owned");
-    await savePageContent(userA, pageId, documentWith("Body"), 1);
+    await savePageContent(userA, pageId, documentWith("Body"), 0);
 
     const rows = await db
       .select({ workspaceId: pageContent.workspaceId })

@@ -25,17 +25,18 @@ export type GetPageContentResult =
       status: "ok";
       document: EditorDocument;
       revision: number;
-      updatedAt: string;
+      updatedAt: string | null;
     }
   | {
       status: "not-found" | "invalid" | "unsupported-version" | "failed";
       message: string;
     };
 
-// A page that has never been saved is served as the version the first save
-// expects to replace, so the writing flow can open an empty page without a
-// separate null case.
+// A page that has never been saved is served as revision 0. The first save
+// therefore writes revision 1 from a non-existent row, and two tabs that both
+// hold revision 0 cannot both replace it: the loser sees a conflict.
 const emptyDocument: EditorDocument = { schemaVersion: 1, content: [] };
+const noRevision = 0;
 const initialRevision = 1;
 
 const notFoundMessage = "Page not found.";
@@ -65,105 +66,111 @@ export async function savePageContent(
     };
   }
 
-  if (!Number.isInteger(expectedRevision) || expectedRevision < 1) {
+  if (!Number.isInteger(expectedRevision) || expectedRevision < noRevision) {
     return {
       status: "invalid",
-      message: "The expected revision must be a positive integer."
+      message: "The expected revision must be a non-negative integer."
     };
   }
 
   const searchText = extractSearchableText(parsed.value);
 
   try {
-    return await db.transaction(async (tx) => {
-      // The workspace join is the ownership check. A page that does not exist
-      // and a page owned by someone else produce the same empty result, so the
-      // caller cannot tell the two apart.
-      const rows = await tx
-        .select({
-          workspaceId: page.workspaceId,
-          revision: pageContent.revision
-        })
-        .from(page)
-        .innerJoin(workspace, eq(page.workspaceId, workspace.id))
-        .leftJoin(pageContent, eq(pageContent.pageId, page.id))
-        .where(and(eq(workspace.userId, userId), eq(page.id, parsedId)))
-        .limit(1);
-
-      const row = rows[0];
-
-      if (!row) {
-        return notFound();
-      }
-
-      const currentRevision = row.revision ?? initialRevision;
-
-      if (currentRevision !== expectedRevision) {
-        return { status: "conflict" as const, currentRevision };
-      }
-
-      if (row.revision === null) {
-        // `onConflictDoNothing` resolves the race between two tabs both
-        // inserting the first revision: the loser reports a conflict instead of
-        // overwriting the winner's document.
-        const inserted = await tx
-          .insert(pageContent)
-          .values({
-            pageId: parsedId,
-            workspaceId: row.workspaceId,
-            document: parsed.value,
-            revision: initialRevision,
-            searchText
+    return await db.transaction(
+      async (tx) => {
+        // The workspace join is the ownership check. A page that does not exist
+        // and a page owned by someone else produce the same empty result, so the
+        // caller cannot tell the two apart.
+        const rows = await tx
+          .select({
+            workspaceId: page.workspaceId,
+            revision: pageContent.revision
           })
-          .onConflictDoNothing()
+          .from(page)
+          .innerJoin(workspace, eq(page.workspaceId, workspace.id))
+          .leftJoin(pageContent, eq(pageContent.pageId, page.id))
+          .where(and(eq(workspace.userId, userId), eq(page.id, parsedId)))
+          .limit(1);
+
+        const row = rows[0];
+
+        if (!row) {
+          return notFound();
+        }
+
+        const currentRevision = row.revision ?? noRevision;
+
+        if (currentRevision !== expectedRevision) {
+          return { status: "conflict" as const, currentRevision };
+        }
+
+        if (row.revision === null) {
+          // `onConflictDoNothing` resolves the race between two tabs both
+          // inserting the first revision: the loser reports a conflict instead of
+          // overwriting the winner's document.
+          const inserted = await tx
+            .insert(pageContent)
+            .values({
+              pageId: parsedId,
+              workspaceId: row.workspaceId,
+              document: parsed.value,
+              revision: initialRevision,
+              searchText
+            })
+            .onConflictDoNothing()
+            .returning({
+              revision: pageContent.revision,
+              updatedAt: pageContent.updatedAt
+            });
+
+          const created = inserted[0];
+
+          if (!created) {
+            return {
+              status: "conflict" as const,
+              currentRevision: await readRevision(tx, parsedId)
+            };
+          }
+
+          return saved(created.revision, created.updatedAt);
+        }
+
+        // The revision predicate is the concurrency check: a writer that read a
+        // stale revision updates no rows and receives a conflict below.
+        const updated = await tx
+          .update(pageContent)
+          .set({
+            document: parsed.value,
+            searchText,
+            revision: currentRevision + 1
+          })
+          .where(
+            and(
+              eq(pageContent.pageId, parsedId),
+              eq(pageContent.revision, expectedRevision)
+            )
+          )
           .returning({
             revision: pageContent.revision,
             updatedAt: pageContent.updatedAt
           });
 
-        const created = inserted[0];
+        const updatedRow = updated[0];
 
-        if (!created) {
+        if (!updatedRow) {
           return {
             status: "conflict" as const,
             currentRevision: await readRevision(tx, parsedId)
           };
         }
 
-        return saved(created.revision, created.updatedAt);
-      }
-
-      // The revision predicate is the concurrency check: a writer that read a
-      // stale revision updates no rows and receives a conflict below.
-      const updated = await tx
-        .update(pageContent)
-        .set({
-          document: parsed.value,
-          searchText,
-          revision: currentRevision + 1
-        })
-        .where(
-          and(
-            eq(pageContent.pageId, parsedId),
-            eq(pageContent.revision, expectedRevision)
-          )
-        )
-        .returning({
-          revision: pageContent.revision,
-          updatedAt: pageContent.updatedAt
-        });
-
-      const updatedRow = updated[0];
-
-      if (!updatedRow) {
-        return {
-          status: "conflict" as const,
-          currentRevision: await readRevision(tx, parsedId)
-        };
-      }
-
-      return saved(updatedRow.revision, updatedRow.updatedAt);
-    });
+        return saved(updatedRow.revision, updatedRow.updatedAt);
+      },
+      // The conflict path reads the row a concurrent save committed after this
+      // transaction started. Read committed makes that read see the new revision,
+      // so the caller receives the right currentRevision instead of a stale one.
+      { isolationLevel: "read committed" }
+    );
   } catch {
     return { status: "failed", message: failedMessage };
   }
@@ -184,8 +191,7 @@ export async function getPageContent(
       .select({
         document: pageContent.document,
         revision: pageContent.revision,
-        updatedAt: pageContent.updatedAt,
-        pageUpdatedAt: page.updatedAt
+        updatedAt: pageContent.updatedAt
       })
       .from(page)
       .innerJoin(workspace, eq(page.workspaceId, workspace.id))
@@ -203,8 +209,8 @@ export async function getPageContent(
       return {
         status: "ok",
         document: emptyDocument,
-        revision: initialRevision,
-        updatedAt: row.pageUpdatedAt.toISOString()
+        revision: noRevision,
+        updatedAt: null
       };
     }
 
@@ -239,7 +245,7 @@ async function readRevision(tx: Transaction, pageId: PageId): Promise<number> {
     .where(eq(pageContent.pageId, pageId))
     .limit(1);
 
-  return rows[0]?.revision ?? initialRevision;
+  return rows[0]?.revision ?? noRevision;
 }
 
 function saved(revision: number, updatedAt: Date): SaveContentResult {

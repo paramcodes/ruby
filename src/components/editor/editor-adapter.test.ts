@@ -75,6 +75,22 @@ describe("parseEditorDocument", () => {
     }
   });
 
+  it("rejects content that is not a block list", () => {
+    expect(parseEditorDocument({ schemaVersion: 1, content: "hello" })).toEqual(
+      { ok: false, reason: "invalid" }
+    );
+    expect(parseEditorDocument({ schemaVersion: 1, content: 42 })).toEqual({
+      ok: false,
+      reason: "invalid"
+    });
+    expect(
+      parseEditorDocument({
+        schemaVersion: 1,
+        content: [{ id: "block-1", type: "paragraph" }, "not a block"]
+      })
+    ).toEqual({ ok: false, reason: "invalid" });
+  });
+
   it("rejects an unsupported schema version without throwing", () => {
     expect(parseEditorDocument({ schemaVersion: 2, content: [] })).toEqual({
       ok: false,

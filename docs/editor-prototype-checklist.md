@@ -27,7 +27,7 @@ stored documents.
 
 - Commit: the prototype commit that introduced this checklist.
 - Chromium (Playwright), viewport 1440 × 1100, light and dark color schemes.
-- Fixture has 14 top-level blocks and one nested bullet.
+- Fixture has 13 top-level blocks, plus one nested bullet (14 blocks in total).
 - Automated run: `node` script driving Playwright against
   `http://127.0.0.1:3100/editor-prototype`; no console errors.
 
@@ -48,7 +48,7 @@ stored documents.
 | 11 | Slash menu is keyboard operable | **Pass (partly automated).** Arrow keys and Enter are handled by BlockNote's suggestion-menu keyboard navigation; Escape closed the menu in the automated run. Full screen-reader announcement is a manual check below. |
 | 12 | Block reordering by drag | **Pass.** Dragging the side-menu handle moved the fixture's last paragraph above the H1; the first block became "Try the slash menu here…". |
 | 13 | Side menu appears on hover | **Pass.** Two buttons rendered: add block and drag handle. |
-| 14 | Enter splits a block | **Pass.** Block count went 15 → 16. |
+| 14 | Enter splits a block | **Pass.** Block count went 14 → 15. |
 | 15 | Shift+Enter inserts a soft break in the same block | **Pass.** Block count stayed 16 and one `<br>` was added. |
 | 16 | Backspace on an empty block removes it | **Pass.** The empty slash block was removed before the typing check. |
 | 17 | Tab / Shift+Tab nests and outdents list items | **Pending manual check.** Not automated in this pass. |
@@ -56,11 +56,11 @@ stored documents.
 | 19 | Styling coherence in dark mode | **Pass.** Emulated dark scheme; token values switched, text and surfaces stayed legible. Note: `--bn-*` variables are mapped to light-dark tokens, so BlockNote chrome follows the token scheme. |
 | 20 | Slash menu and side-menu styling | **Pass.** Custom menus use surface-raised, border, shadow-overlay, radius and small UI type; selected item uses accent-subtle. |
 | 21 | No console errors | **Pass.** Empty console-error list after editing, slash menu, merge, and drag. |
-| 22 | Adapter panel tracks edits | **Pass.** After edits the panel reported 15 top-level blocks and rebuilt searchable text including nested bullets. |
+| 22 | Adapter panel tracks edits | **Pass.** After edits the panel reported 14 top-level blocks and rebuilt searchable text including nested bullets. |
 | 23 | Touch drag reorder and mobile toolbar | **Pending manual check.** Desktop pointer only in this pass. |
 | 24 | IME composition (e.g. Japanese, Chinese) | **Pending manual check.** |
 | 25 | Screen-reader navigation of slash menu and drag handle | **Pending manual check.** Labels exist (`Slash menu`, `Add block`, `Drag block`), but announcement quality needs a real AT pass. |
-| 26 | Long-document performance (500+ blocks) | **Pending manual check.** Fixture is 14 blocks. |
+| 26 | Long-document performance (500+ blocks) | **Pending manual check.** Fixture is 13 top-level blocks (14 blocks in total). |
 | 27 | Firefox and Safari rendering | **Pending manual check.** Chromium only in this pass. |
 
 ## How to run the manual pass

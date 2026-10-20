@@ -1,4 +1,4 @@
-import type { Block } from "@blocknote/core";
+import type { Block, PartialBlock } from "@blocknote/core";
 
 // Public shape of a persisted editor document. `JsonValue` deliberately mirrors
 // JSON itself so the stored payload is portable to any editor implementation.
@@ -21,6 +21,10 @@ export type ParseEditorDocumentResult =
 // the editor (or ProseMirror) into the server bundle.
 type EditorBlockList = Block[];
 
+// Editor seeds do not carry generated ids or defaults, so the initial content
+// of a new editor is a partial block list.
+export type EditorPartialBlockList = PartialBlock[];
+
 export function parseEditorDocument(input: unknown): ParseEditorDocumentResult {
   if (!isRecord(input)) {
     return { ok: false, reason: "invalid" };
@@ -38,7 +42,7 @@ export function parseEditorDocument(input: unknown): ParseEditorDocumentResult {
 
   const content = input["content"];
 
-  if (!isJsonValue(content)) {
+  if (!isBlockList(content)) {
     return { ok: false, reason: "invalid" };
   }
 
@@ -127,6 +131,13 @@ function inlineText(node: JsonValue | unknown): string {
   }
 
   return inlineText(node["content"]);
+}
+
+// Stored content is a block list: an array whose elements are block objects.
+// A bare string or number is valid JSON but not a document, so it must not be
+// accepted and written to the database.
+function isBlockList(value: unknown): value is JsonValue[] {
+  return Array.isArray(value) && value.every((item) => isRecord(item));
 }
 
 function isJsonValue(value: unknown): value is JsonValue {
