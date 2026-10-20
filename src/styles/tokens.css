@@ -1,14 +1,20 @@
 :root {
   color-scheme: light dark;
 
-  /* Color: warm neutral surfaces, deep archival green accent. */
+  /* Color: warm neutral surfaces, deep archival green accent.
+     Surface ramp is deliberately wide enough for raised and sunken to read as
+     distinct surfaces; pair surface tokens with a border when the boundary is
+     load-bearing. */
   --color-canvas: light-dark(oklch(98.4% 0.005 80), oklch(21% 0.008 78));
-  --color-surface: light-dark(oklch(96.6% 0.008 80), oklch(25% 0.009 78));
-  --color-surface-raised: light-dark(oklch(100% 0 none), oklch(29% 0.01 78));
-  --color-surface-sunken: light-dark(oklch(94.6% 0.01 80), oklch(18% 0.007 78));
+  --color-surface: light-dark(oklch(94.6% 0.008 80), oklch(27% 0.009 78));
+  --color-surface-raised: light-dark(oklch(100% 0 none), oklch(33% 0.01 78));
+  --color-surface-sunken: light-dark(oklch(88% 0.012 80), oklch(13% 0.007 78));
   --color-text: light-dark(oklch(24% 0.012 75), oklch(92% 0.008 80));
   --color-text-muted: light-dark(oklch(44% 0.012 75), oklch(76% 0.01 80));
   --color-text-subtle: light-dark(oklch(52% 0.01 75), oklch(66% 0.01 80));
+  /* --color-border and --color-border-strong are decorative separators only.
+     Interactive boundaries (inputs, buttons) use --color-border-interactive at
+     a 45% mix so they meet WCAG 1.4.11 non-text contrast (3:1). */
   --color-border: color-mix(
     in oklch,
     var(--color-text) 14%,
@@ -19,19 +25,29 @@
     var(--color-text) 28%,
     var(--color-canvas)
   );
+  --color-border-interactive: color-mix(
+    in oklch,
+    var(--color-text) 45%,
+    var(--color-canvas)
+  );
   --color-accent: light-dark(oklch(45% 0.08 168), oklch(76% 0.09 168));
   --color-accent-hover: color-mix(
     in oklch,
     var(--color-accent) 88%,
     var(--color-text)
   );
+  /* 30% accent carries enough chroma to read as green, and mixing in oklab
+     keeps the accent hue; oklch interpolation would drag it toward the warm
+     canvas and turn the tint olive. */
   --color-accent-subtle: color-mix(
-    in oklch,
-    var(--color-accent) 14%,
+    in oklab,
+    var(--color-accent) 30%,
     var(--color-canvas)
   );
+  --color-selection: light-dark(oklch(68% 0.1 168), oklch(40% 0.08 168));
   --color-danger: light-dark(oklch(48% 0.17 25), oklch(72% 0.14 25));
-  --color-focus-ring: var(--color-accent);
+  /* Shadows use ink, not text: text is near-white in dark mode and would glow. */
+  --color-shadow: light-dark(oklch(24% 0.012 75), oklch(0% 0 none));
 
   /* Typography */
   --font-reading:
@@ -53,7 +69,12 @@
   --line-height-body: 1.6;
   --line-height-relaxed: 1.7;
 
+  --font-weight-medium: 500;
+  --letter-spacing-title: -0.015em;
+
   --measure: 68ch;
+  --measure-heading: 16ch;
+  --measure-lead: 52ch;
 
   /* Spacing */
   --space-3xs: 0.25rem;
@@ -75,7 +96,7 @@
 
   /* Focus */
   --focus-ring-width: 2px;
-  --focus-ring-color: var(--color-focus-ring);
+  --focus-ring-color: var(--color-accent);
   --focus-ring-offset: 3px;
 
   /* Motion */
@@ -85,8 +106,8 @@
 
   /* Elevation: only for surfaces that genuinely lift. */
   --shadow-raised: 0 1px 2px
-    color-mix(in oklch, var(--color-text) 6%, transparent);
+    color-mix(in oklab, var(--color-shadow) 6%, transparent);
   --shadow-overlay:
-    0 2px 4px color-mix(in oklch, var(--color-text) 6%, transparent),
-    0 16px 40px color-mix(in oklch, var(--color-text) 10%, transparent);
+    0 2px 4px color-mix(in oklab, var(--color-shadow) 6%, transparent),
+    0 16px 40px color-mix(in oklab, var(--color-shadow) 10%, transparent);
 }

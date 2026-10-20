@@ -33,7 +33,7 @@ h5,
 h6 {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   line-height: var(--line-height-tight);
   text-wrap: balance;
 }
@@ -45,9 +45,13 @@ p {
 img,
 picture,
 video,
-canvas,
-svg {
+canvas {
   display: block;
+  max-inline-size: 100%;
+}
+
+/* Inline icons stay in the text flow; standalone SVGs set their own display. */
+svg {
   max-inline-size: 100%;
 }
 
@@ -61,6 +65,7 @@ button,
 textarea,
 select {
   font: inherit;
+  /* 16px minimum stops iOS Safari from zooming the viewport on focus. */
   font-size: max(1rem, 1em);
   touch-action: manipulation;
 }
@@ -81,7 +86,7 @@ a {
 }
 
 ::selection {
-  background: var(--color-accent-subtle);
+  background: var(--color-selection);
   color: var(--color-text);
 }
 
@@ -104,7 +109,6 @@ a {
   align-content: center;
   min-block-size: 100svh;
   padding-block: var(--space-section);
-  overflow: clip;
   grid-template-columns:
     [full-width-start] minmax(var(--gutter), 1fr)
     [content-start] min(100% - var(--gutter) * 2, var(--measure)) [content-end]
@@ -124,21 +128,21 @@ a {
   color: var(--color-accent);
   font-family: var(--font-ui);
   font-size: var(--font-size-small);
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   letter-spacing: 0;
   line-height: var(--line-height-snug);
   text-transform: none;
 }
 
 .home__title {
-  max-inline-size: 16ch;
+  max-inline-size: var(--measure-heading);
   font-size: var(--font-size-display);
-  letter-spacing: -0.015em;
+  letter-spacing: var(--letter-spacing-title);
   line-height: var(--line-height-tight);
 }
 
 .home__description {
-  max-inline-size: 52ch;
+  max-inline-size: var(--measure-lead);
   color: var(--color-text-muted);
   font-size: var(--font-size-large);
   line-height: var(--line-height-relaxed);

@@ -7,6 +7,12 @@
   "engines": {
     "node": ">=26.0.0"
   },
+  "browserslist": [
+    "chrome 123",
+    "edge 123",
+    "firefox 120",
+    "safari 17.5"
+  ],
   "scripts": {
     "dev": "next dev",
     "lint": "eslint .",
