@@ -1,6 +1,14 @@
 import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
 
+// Better Auth-owned tables: `user`, `session`, `account`, and `verification`.
+//
+// They are hand-written to match the output of
+// `pnpm dlx @better-auth/cli generate` rather than pasted from it. Equivalence
+// was verified by generating the schema with that CLI and diffing the result
+// against this file: same tables, columns, column types, defaults, indexes,
+// foreign keys, and relations. Re-run that diff when upgrading `better-auth`.
+
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),

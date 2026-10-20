@@ -20,6 +20,19 @@ function getSecret(): string {
   return secret;
 }
 
+function normalizeOrigin(value: string | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    // `URL.origin` strips a trailing slash so origin checks compare cleanly.
+    return new URL(value).origin;
+  } catch {
+    return null;
+  }
+}
+
 function getTrustedOrigins(): string[] {
   return [
     ...new Set(
@@ -27,10 +40,28 @@ function getTrustedOrigins(): string[] {
         process.env.BETTER_AUTH_URL,
         "http://localhost:3000",
         "http://127.0.0.1:3000"
-      ].filter((origin): origin is string => Boolean(origin))
+      ]
+        .map(normalizeOrigin)
+        .filter((origin): origin is string => origin !== null)
     )
   ];
 }
+
+function getRateLimitOptions(): { enabled: boolean } | undefined {
+  if (process.env.NODE_ENV === "production") {
+    // Rate limiting is always on in production; the kill switch below is
+    // development/test only and never disables it there.
+    return { enabled: true };
+  }
+
+  if (process.env.BETTER_AUTH_RATE_LIMIT_DISABLED === "true") {
+    return { enabled: false };
+  }
+
+  return undefined;
+}
+
+const rateLimitOptions = getRateLimitOptions();
 
 function createAuth() {
   return betterAuth({
@@ -44,9 +75,7 @@ function createAuth() {
     secret: getSecret(),
     baseURL: process.env.BETTER_AUTH_URL,
     trustedOrigins: getTrustedOrigins(),
-    ...(process.env.BETTER_AUTH_RATE_LIMIT_DISABLED === "true"
-      ? { rateLimit: { enabled: false } }
-      : {}),
+    ...(rateLimitOptions ? { rateLimit: rateLimitOptions } : {}),
     plugins: [nextCookies()]
   });
 }

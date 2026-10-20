@@ -62,7 +62,6 @@ Rationale:
 ## Consequences
 
 - Task 4 adds the `better-auth` dependency and auth boundary implementation; no auth code is added by this ADR.
-- The database schema will include `user`, `session`, `account`, and `verification` tables owned by Better Auth but migrated by Drizzle.
+- The database schema will include `user`, `session`, `account`, and `verification` tables owned by Better Auth but migrated by Drizzle. These tables are hand-written in `src/server/db/schema.ts` to match the output of `pnpm dlx @better-auth/cli generate`; equivalence was verified by diffing the generated schema against the hand-written one (same tables, columns, types, defaults, indexes, and relations).
 - Every protected operation must resolve `UserId` server-side; client input cannot supply the acting user ID.
-- CI must provide `BETTER_AUTH_SECRET` and PostgreSQL for auth and browser tests.<|end|><|start|><|start|>assistant to=write<|channel|>analysis <|constrain|>xml<|message|><rfl:parameter name="path">
-/home/param/.codex/worktrees/54db/ruby/docs/adr/0003-authentication-for-the-mvp.md
+- CI must provide `BETTER_AUTH_SECRET` and PostgreSQL for auth and browser tests.
