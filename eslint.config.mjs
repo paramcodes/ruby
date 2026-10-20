@@ -29,7 +29,9 @@ const restrictedDatabasePatterns = [
       "**/db/**",
       "**/repositories/**",
       "**/repository/**",
-      "**/persistence/**"
+      "**/persistence/**",
+      "drizzle-orm/*",
+      "postgres/*"
     ],
     message:
       "UI code must call domain operations and cannot access database clients or domain repositories."
