@@ -29,6 +29,13 @@
       "when": 1792520751093,
       "tag": "0003_elite_slyde",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792528518488,
+      "tag": "0004_brown_quicksilver",
+      "breakpoints": true
     }
   ]
 }

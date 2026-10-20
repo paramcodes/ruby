@@ -13,7 +13,9 @@ export default defineConfig({
     "./src/server/db/schema.ts",
     "./src/server/workspaces/schema.ts",
     "./src/server/pages/schema.ts",
-    "./src/server/pages/content-schema.ts"
+    "./src/server/pages/content-schema.ts",
+    "./src/server/pages/favorites-schema.ts",
+    "./src/server/pages/recent-pages-schema.ts"
   ],
   out: "./src/server/db/migrations",
   dialect: "postgresql",

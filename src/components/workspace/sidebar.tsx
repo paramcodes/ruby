@@ -10,15 +10,24 @@ import type { PageSummary } from "@/server/pages/types";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { requestAppNavigation } from "../navigation-guard";
+import { FavoritesList } from "./favorites-list";
 import { PageActions, describePageActionError } from "./page-actions";
 import { PageTree } from "./page-tree";
+import { RecentPagesList } from "./recent-pages-list";
 import styles from "./sidebar.module.css";
 
 export type SidebarProps = {
+  favorites?: readonly PageSummary[];
+  /** Active and archived pages. Archived pages render in a separate section. */
   pages: readonly PageSummary[];
+  recentPages?: readonly PageSummary[];
 };
 
-export function Sidebar({ pages }: SidebarProps) {
+export function Sidebar({
+  favorites = [],
+  pages,
+  recentPages = []
+}: SidebarProps) {
   const pathname = usePathname();
   const activePageId = pageIdFromPathname(pathname);
   const activePages = pages.filter((page) => page.archivedAt === null);
@@ -42,19 +51,10 @@ export function Sidebar({ pages }: SidebarProps) {
         )}
       />
 
-      <div className={styles.placeholders}>
-        <Placeholder
-          description="Pinned pages will sit at the top of the sidebar."
-          title="Favorites"
-        />
-        <Placeholder
-          description="Pages you visited lately will appear here."
-          title="Recent"
-        />
-        <Placeholder
-          description="Full-text search is planned for this workspace."
-          title="Search"
-        />
+      <div className={styles.sections}>
+        <SearchPlaceholder />
+        <FavoritesList favorites={[...favorites]} />
+        <RecentPagesList recentPages={[...recentPages]} />
       </div>
     </aside>
   );
@@ -114,20 +114,16 @@ export function CreatePageForm({
   );
 }
 
-function Placeholder({
-  description,
-  title
-}: {
-  description: string;
-  title: string;
-}) {
+function SearchPlaceholder() {
   return (
     <section className={styles.placeholder}>
       <h2 className={styles.placeholderTitle}>
-        {title}
+        Search
         <span className={styles.badge}>Coming soon</span>
       </h2>
-      <p className={styles.placeholderText}>{description}</p>
+      <p className={styles.placeholderText}>
+        Full-text search is coming to this workspace.
+      </p>
     </section>
   );
 }

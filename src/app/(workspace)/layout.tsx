@@ -7,6 +7,8 @@ import {
   listArchivedPagesForUser,
   listPagesForUser
 } from "@/server/pages/queries";
+import { listFavorites } from "@/server/pages/favorites";
+import { listRecentPages } from "@/server/pages/recent-pages";
 
 import styles from "./layout.module.css";
 
@@ -26,17 +28,24 @@ async function WorkspaceFrame({ children }: Readonly<React.PropsWithChildren>) {
     redirect("/sign-in");
   }
 
-  const [activePages, archivedPages] = await Promise.all([
-    listPagesForUser(user.id),
-    listArchivedPagesForUser(user.id)
-  ]);
+  const [activePages, archivedPages, favorites, recentPages] =
+    await Promise.all([
+      listPagesForUser(user.id),
+      listArchivedPagesForUser(user.id),
+      listFavorites(user.id),
+      listRecentPages(user.id)
+    ]);
 
   return (
     <div className={styles.shell}>
       <a className={styles.skipLink} href="#main-content">
         Skip to content
       </a>
-      <Sidebar pages={[...activePages, ...archivedPages]} />
+      <Sidebar
+        favorites={favorites}
+        pages={[...activePages, ...archivedPages]}
+        recentPages={recentPages}
+      />
       <main className={styles.main} id="main-content">
         {children}
       </main>

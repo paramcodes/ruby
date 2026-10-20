@@ -2,10 +2,13 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { savePageContentAction } from "@/app/actions/page-content";
+import { FavoriteToggle } from "@/components/workspace/favorite-toggle";
 import { PageEditor } from "@/components/editor/page-editor";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/server/auth/current-user";
 import { toPageId } from "@/server/ids";
+import { recordRecentPage } from "@/server/pages/recent-pages";
+import { isPageFavorited } from "@/server/pages/favorites";
 import { getPageContent } from "@/server/pages/content-commands";
 import { getPageForUser } from "@/server/pages/queries";
 
@@ -36,17 +39,28 @@ export default async function PageRoute({ params }: PageRouteProps) {
     notFound();
   }
 
+  // Record this visit for the "Recent" list. Only active pages are recorded, so
+  // the archived filter in the listing stays the single source of truth.
+  if (page.archivedAt === null) {
+    void recordRecentPage(user.id, page.id);
+  }
+
   const content = await getPageContent(user.id, parsedId);
 
   if (content.status === "not-found") {
     notFound();
   }
 
+  const favorited = await isPageFavorited(user.id, page.id);
+
   return (
     <article className={styles.page}>
       <header className={styles.header}>
         <p className={styles.eyebrow}>Page</p>
-        <h1 className={styles.title}>{page.title}</h1>
+        <div className={styles.titleRow}>
+          <h1 className={styles.title}>{page.title}</h1>
+          <FavoriteToggle initial={favorited} pageId={page.id} />
+        </div>
         {page.archivedAt ? (
           <p className={styles.archived} role="status">
             This page is archived. Restore it from the Archived section in the
