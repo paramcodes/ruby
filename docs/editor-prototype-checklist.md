@@ -49,7 +49,7 @@ stored documents.
 | 12 | Block reordering by drag | **Pass.** Dragging the side-menu handle moved the fixture's last paragraph above the H1; the first block became "Try the slash menu here…". |
 | 13 | Side menu appears on hover | **Pass.** Two buttons rendered: add block and drag handle. |
 | 14 | Enter splits a block | **Pass.** Block count went 14 → 15. |
-| 15 | Shift+Enter inserts a soft break in the same block | **Pass.** Block count stayed 16 and one `<br>` was added. |
+| 15 | Shift+Enter inserts a soft break in the same block | **Pass.** Block count stayed 15 and one `<br>` was added. |
 | 16 | Backspace on an empty block removes it | **Pass.** The empty slash block was removed before the typing check. |
 | 17 | Tab / Shift+Tab nests and outdents list items | **Pending manual check.** Not automated in this pass. |
 | 18 | Styling coherence in light mode | **Pass.** Editor frame uses `--color-surface-raised`, borders use `--color-border`, headings use `--font-display`, body uses `--font-reading`. No BlockNote default white editor surface is visible. |
@@ -76,6 +76,11 @@ stored documents.
 6. Repeat in a dark color scheme and at a narrow viewport.
 7. Record anything that fails and re-open the editor-choice decision if a
    failure is in the interaction or visual direction rather than styling detail.
+
+To repeat the prototype pass on the browser-test origin, run `pnpm dev:e2e` and
+open `http://127.0.0.1:3100/editor-prototype`. That script sets
+`BETTER_AUTH_URL` to the same port, so sign-in passes the origin check without
+adding a test port to the auth configuration.
 
 ## Automated evidence
 

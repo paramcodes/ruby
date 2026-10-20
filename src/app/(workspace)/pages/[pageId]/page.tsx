@@ -1,7 +1,12 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { savePageContentAction } from "@/app/actions/page-content";
+import { PageEditor } from "@/components/editor/page-editor";
+import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/server/auth/current-user";
 import { toPageId } from "@/server/ids";
+import { getPageContent } from "@/server/pages/content-commands";
 import { getPageForUser } from "@/server/pages/queries";
 
 import styles from "./page.module.css";
@@ -31,6 +36,12 @@ export default async function PageRoute({ params }: PageRouteProps) {
     notFound();
   }
 
+  const content = await getPageContent(user.id, parsedId);
+
+  if (content.status === "not-found") {
+    notFound();
+  }
+
   return (
     <article className={styles.page}>
       <header className={styles.header}>
@@ -47,10 +58,32 @@ export default async function PageRoute({ params }: PageRouteProps) {
         <h2 className={styles.sectionTitle} id="page-content-heading">
           Page content
         </h2>
-        <p className={styles.placeholder}>
-          Writing and formatting arrive in a later task. For now this page holds
-          its title and its place in the page tree.
-        </p>
+        {content.status === "ok" ? (
+          <PageEditor
+            initialDocument={content.document}
+            initialRevision={content.revision}
+            pageId={page.id}
+            saveContent={savePageContentAction}
+          />
+        ) : (
+          <div className={styles.loadError} role="alert">
+            <h3 className={styles.loadErrorTitle}>
+              This page could not be loaded
+            </h3>
+            <p className={styles.loadErrorText}>
+              {content.message} Your stored content is unchanged. Try loading
+              the page again, or return to the workspace.
+            </p>
+            <div className={styles.loadErrorActions}>
+              <Button asChild size="sm" variant="secondary">
+                <Link href={`/pages/${page.id}`}>Try again</Link>
+              </Button>
+              <Button asChild size="sm" variant="secondary">
+                <Link href="/">Back to workspace</Link>
+              </Button>
+            </div>
+          </div>
+        )}
       </section>
     </article>
   );

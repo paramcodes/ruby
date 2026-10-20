@@ -9,6 +9,7 @@ import type { PageSummary } from "@/server/pages/types";
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { requestAppNavigation } from "../navigation-guard";
 import { PageActions, describePageActionError } from "./page-actions";
 import { PageTree } from "./page-tree";
 import styles from "./sidebar.module.css";
@@ -88,6 +89,11 @@ export function CreatePageForm({
     }
 
     setTitle("");
+
+    if (!requestAppNavigation(`/pages/${result.page.id}`)) {
+      return;
+    }
+
     router.push(`/pages/${result.page.id}`);
     router.refresh();
   }

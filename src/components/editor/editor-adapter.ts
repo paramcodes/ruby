@@ -73,6 +73,15 @@ export function serializeEditorDocument(editorState: unknown): EditorDocument {
   return { schemaVersion: CURRENT_SCHEMA_VERSION, content };
 }
 
+// Parsed content is a list of plain JSON objects. BlockNote accepts those as
+// partial blocks and fills in ids, props, and children that a stored document
+// already carries.
+export function toEditorBlocks(
+  document: EditorDocument
+): EditorPartialBlockList {
+  return document.content as unknown as EditorPartialBlockList;
+}
+
 export function extractSearchableText(document: EditorDocument): string {
   const blocks = document.content;
 
@@ -133,11 +142,15 @@ function inlineText(node: JsonValue | unknown): string {
   return inlineText(node["content"]);
 }
 
-// Stored content is a block list: an array whose elements are block objects.
-// A bare string or number is valid JSON but not a document, so it must not be
-// accepted and written to the database.
+// Stored content is a block list: an array of plain objects, each containing
+// only values that survive a JSON round-trip. A bare string or number is valid
+// JSON but not a document, and a nested function, undefined, Date, or BigInt
+// would either be dropped or fail to store, so neither may be accepted.
 function isBlockList(value: unknown): value is JsonValue[] {
-  return Array.isArray(value) && value.every((item) => isRecord(item));
+  return (
+    Array.isArray(value) &&
+    value.every((item) => isRecord(item) && isJsonValue(item))
+  );
 }
 
 function isJsonValue(value: unknown): value is JsonValue {

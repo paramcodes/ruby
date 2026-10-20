@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "dev": "next dev",
+    "dev:e2e": "BETTER_AUTH_URL=http://127.0.0.1:3100 next dev --port 3100",
     "lint": "eslint .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",

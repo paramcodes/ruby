@@ -7,7 +7,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  colorScheme: "light dark"
+  colorScheme: "light dark",
+  interactiveWidget: "resizes-content"
 };
 
 export default function RootLayout({

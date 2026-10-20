@@ -1,0 +1,70 @@
+.editor {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.editorCanvas {
+  display: grid;
+  gap: var(--space-2xs);
+  min-inline-size: 0;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+}
+
+.saveStatus {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  align-items: center;
+  min-block-size: 1.5rem;
+  color: var(--color-text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+}
+
+.saveStatus[data-status="error"],
+.saveStatus[data-status="conflict"] {
+  color: var(--color-danger);
+}
+
+.loading {
+  color: var(--color-text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+}
+
+.conflict {
+  display: grid;
+  gap: var(--space-2xs);
+  padding: var(--space-sm);
+  border: var(--border-width) solid var(--color-danger);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface-sunken);
+}
+
+.conflictTitle {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+  color: var(--color-text);
+}
+
+.conflictText {
+  max-inline-size: var(--measure-lead);
+  color: var(--color-text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+}

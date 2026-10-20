@@ -91,6 +91,45 @@ describe("parseEditorDocument", () => {
     ).toEqual({ ok: false, reason: "invalid" });
   });
 
+  it("rejects a block with a nested value that JSON cannot represent", () => {
+    const block = {
+      id: "block-1",
+      type: "paragraph",
+      content: [{ type: "text", text: "visible" }],
+      children: []
+    };
+
+    expect(
+      parseEditorDocument({
+        schemaVersion: 1,
+        content: [{ ...block, props: { align: Number.NaN } }]
+      })
+    ).toEqual({ ok: false, reason: "invalid" });
+    expect(
+      parseEditorDocument({
+        schemaVersion: 1,
+        content: [{ ...block, props: { align: undefined } }]
+      })
+    ).toEqual({ ok: false, reason: "invalid" });
+    expect(
+      parseEditorDocument({
+        schemaVersion: 1,
+        content: [{ ...block, props: { createdAt: new Date() } }]
+      })
+    ).toEqual({ ok: false, reason: "invalid" });
+    expect(
+      parseEditorDocument({
+        schemaVersion: 1,
+        content: [
+          {
+            ...block,
+            children: [{ ...block, id: "nested", content: [{ text: 1n }] }]
+          }
+        ]
+      })
+    ).toEqual({ ok: false, reason: "invalid" });
+  });
+
   it("rejects an unsupported schema version without throwing", () => {
     expect(parseEditorDocument({ schemaVersion: 2, content: [] })).toEqual({
       ok: false,
