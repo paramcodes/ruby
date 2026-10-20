@@ -1,6 +1,11 @@
 :root {
   color-scheme: light dark;
 
+  /* Contrast ratios quoted in this file are WCAG relative-luminance ratios
+     computed from the token values with no intermediate 8-bit quantization,
+     rounded half-up to two decimals; OKLCH lightness is quoted to one
+     decimal. */
+
   /* Color: warm neutral surfaces, deep archival green accent.
      Surface ramp is deliberately wide enough for raised and sunken to read as
      distinct surfaces; pair surface tokens with a border when the boundary is
@@ -14,17 +19,19 @@
   --color-text: light-dark(oklch(24% 0.012 75), oklch(92% 0.008 80));
   --color-text-muted: light-dark(oklch(44% 0.012 75), oklch(76% 0.01 80));
   /* Subtle text styles small captions, so it owes WCAG AA 4.5:1 on every
-     surface in both themes. Dark sits at 71% because that is the lowest
-     lightness that clears the floor on dark raised (the tightest pair, 4.75:1);
-     light's tightest pair is sunken at 4.74:1. Lowering dark subtle, or
-     lifting dark raised, drops below 4.5:1 and needs a re-measure. Keep it
-     below dark muted (76%) so the two tiers stay distinguishable. */
+     surface in both themes. Dark sits at 71% even though the 4.5:1 crossing on
+     dark raised is 69.6%: the extra 1.4 lightness points are deliberate
+     headroom for rendering and interpolation differences, and that tightest
+     pair measures 4.75:1. Light's tightest pair is sunken at 4.74:1, only 0.24
+     above the floor. Lowering dark subtle, or lifting dark raised, needs a
+     re-measure. Keep it below dark muted (76%) so the two tiers stay
+     distinguishable. */
   --color-text-subtle: light-dark(oklch(50% 0.01 75), oklch(71% 0.01 80));
   /* --color-border and --color-border-strong are decorative separators only.
      Interactive boundaries (inputs, buttons) use --color-border-interactive, a
      58% text/canvas mix. It clears WCAG 1.4.11 non-text contrast (3:1) against
      canvas, surface, raised, and sunken in both themes; the tightest pair is
-     dark raised at 3.37:1, so keep controls off pure-white or near-black fills
+     dark raised at 3.38:1, so keep controls off pure-white or near-black fills
      that are not one of these tokens. */
   --color-border: color-mix(
     in oklch,
@@ -49,19 +56,23 @@
   );
   /* 30% accent carries enough chroma to read as green, and mixing in oklab
      keeps the accent hue; oklch interpolation would drag it toward the warm
-     canvas and turn the tint olive. */
+     canvas and turn the tint olive. It is a background wash only:
+     --color-text-subtle on this tint measures 3.52:1 in light and 3.92:1 in
+     dark, below AA, so only body text may sit on it (9.65:1 light, 7.96:1
+     dark). */
   --color-accent-subtle: color-mix(
     in oklab,
     var(--color-accent) 30%,
     var(--color-canvas)
   );
   /* Selection is one light accent tint in both themes with a dedicated dark
-     ink label. It clears 3:1 against canvas (light 3.03, dark 5.56) and raised
-     (light 3.19, dark 3.83), and selected text sits at 5.40:1. On light surface
-     and sunken it is a softer highlight (2.73 and 2.52) but the label keeps its
-     5.40:1. A dark tint cannot work in dark mode: raised is itself oklch(33%),
-     so the darkest tint that keeps selected text at 4.5:1 still lands near
-     2:1 on raised. */
+     ink label. It clears 3:1 against canvas (light 3.06, dark 5.53) and raised
+     (light 3.20, dark 3.82). On light surface and sunken it is a softer
+     highlight (2.73 and 2.53), so do not use it as a control boundary. Always
+     label with --color-selection-text (5.38:1); --color-text on this fill
+     measures 5.14:1 in light but 2.53:1 in dark, below AA. A dark tint cannot
+     work in dark mode: raised is itself oklch(33%), so the darkest tint that
+     keeps selected text at 4.5:1 still lands near 2:1 on raised. */
   --color-selection: oklch(64% 0.1 168);
   --color-selection-text: oklch(22% 0.015 168);
   --color-danger: light-dark(oklch(48% 0.17 25), oklch(72% 0.14 25));
