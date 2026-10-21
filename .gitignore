@@ -1,4 +1,5 @@
 .next/
+.superpowers/
 coverage/
 node_modules/
 playwright-report/

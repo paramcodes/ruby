@@ -36,9 +36,9 @@ Implement each behavior test-first: add the focused failing test, run it to conf
 
 **Files:**
 - Create: `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`, `.prettierrc.json`
-- Create: `src/app/layout.tsx`, `src/app/page.tsx`, `src/styles/globals.css`, `playwright.config.ts`
+- Create: `src/app/layout.tsx`, `src/app/page.tsx` (scaffold landing page; later replaced by the protected workspace home in Task 9), `src/styles/globals.css`, `playwright.config.ts`
 - Create: `.github/workflows/ci.yml`
-- Test: `src/app/page.test.tsx`
+- Test: `src/app/page.test.tsx` (scaffold smoke test; removed with the scaffold page in Task 9)
 
 **Interfaces:**
 - Produces scripts: `pnpm dev`, `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`, `pnpm build`, `pnpm verify`.
@@ -166,14 +166,15 @@ Implement each behavior test-first: add the focused failing test, run it to conf
 ### Task 9: Private workspace shell and page navigation
 
 **Files:**
-- Create: `src/app/(workspace)/layout.tsx`, `src/app/(workspace)/page.tsx`
+- Create: `src/app/(workspace)/layout.tsx`, `src/app/(workspace)/page.tsx` — the protected workspace home serves the root route `/`
+- Delete: `src/app/page.tsx`, `src/app/page.test.tsx` — the Task 1 scaffold page and its smoke test are removed so two pages cannot resolve to `/`
 - Create: `src/components/workspace/sidebar.tsx`, `page-tree.tsx`, `page-actions.tsx`
 - Create: `src/app/actions/pages.ts`
 - Test: `src/components/workspace/page-tree.test.tsx`, `tests/e2e/page-navigation.spec.ts`
 
 **Interfaces:**
 - Server actions validate input, call Task 6 commands, resolve the current user, and return serializable results.
-- Produces routes for the private workspace home and `/pages/[pageId]`.
+- Produces routes for the private workspace home at `/` and `/pages/[pageId]`.
 
 - [ ] Build the responsive left navigation, page tree, create-page action, rename, move, archive, and restore controls.
 - [ ] Use server actions only as transport; keep validation and ownership enforcement in domain commands.
