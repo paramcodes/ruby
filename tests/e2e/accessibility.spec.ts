@@ -16,7 +16,7 @@ async function createFirstPage(
 }
 
 test.describe("shell accessibility", () => {
-  test("keyboard navigation reaches the sidebar, page tree, and editor toolbar", async ({
+  test("keyboard navigation reaches the sidebar, page tree, and editor", async ({
     page
   }) => {
     await signUp(page, "a11y");
@@ -71,18 +71,39 @@ test.describe("shell accessibility", () => {
     expect(tabOrder).toContain("Keyboard page");
     expect(tabOrder).toContain("Actions for Keyboard page");
 
-    // Editor toolbar: Undo and Redo are reachable.
-    expect(tabOrder).toContain("Undo");
-    expect(tabOrder).toContain("Redo");
-    expect(tabOrder).toContain("Move block up");
-    expect(tabOrder).toContain("Move block down");
+    // Editor: there is no permanent command toolbar anymore — undo, redo,
+    // and block moves are keyboard-first (Ctrl+Z/Y, Alt+Arrows). Verify the
+    // writing canvas is itself reachable and the undo shortcut works.
+    const editor = page.locator(".bn-editor");
+
+    let focusedCanvas = false;
+
+    for (let i = 0; i < 40 && !focusedCanvas; i++) {
+      await page.keyboard.press("Tab");
+      focusedCanvas = await page.evaluate(() => {
+        const el = document.activeElement as HTMLElement | null;
+        return Boolean(el?.isContentEditable && el.closest(".bn-editor"));
+      });
+    }
+
+    expect(focusedCanvas).toBe(true);
+
+    await page.keyboard.type("Keyboard edit");
+    await expect(editor).toContainText("Keyboard edit");
+    await page.keyboard.press("ControlOrMeta+z");
+    await expect(editor).not.toContainText("Keyboard edit");
   });
 
   test("focused interactive elements show a visible focus indicator", async ({
     page
   }) => {
     await signUp(page, "focus");
-    await createFirstPage(page, "Focus page");
+
+    // Navigate explicitly: a fresh navigation resets focus to the document,
+    // and the workspace listing has no editor to auto-focus or swallow Tab.
+    // The first two Tabs then deterministically reach the skip link and the
+    // brand link.
+    await page.goto("/");
 
     // Tab past the skip link to the brand link.
     await page.keyboard.press("Tab");
@@ -119,15 +140,9 @@ test.describe("shell accessibility", () => {
       page.getByRole("button", { name: "Add to favorites" })
     ).toBeVisible();
 
-    // Editor toolbar buttons.
-    await expect(page.getByRole("button", { name: "Undo" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Redo" })).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Move block up" })
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Move block down" })
-    ).toBeVisible();
+    // The writing canvas hosts undo, redo, and block actions itself (drag
+    // handle and slash menu); no command toolbar is rendered.
+    await expect(page.locator(".bn-editor")).toBeVisible();
 
     // Save status announces via role="status".
     await expect(page.getByTestId("save-status")).toHaveAttribute(

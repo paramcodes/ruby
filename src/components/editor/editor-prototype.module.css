@@ -2,15 +2,11 @@
    variables with our tokens. No default theme package is imported. */
 
 .prototype {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   gap: var(--space-lg);
-  align-items: start;
-}
-
-@media (min-width: 72rem) {
-  .prototype {
-    grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
-  }
+  align-items: stretch;
 }
 
 .loading {
@@ -19,13 +15,11 @@
   font-size: var(--font-size-small);
 }
 
+/* The canvas reads as paper: full measure, flat surface, no frame. The class
+   level still raises the token override above BlockNote's own declarations. */
 .editorFrame {
+  flex: 1;
   min-inline-size: 0;
-  padding: var(--space-sm);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-large);
-  background: var(--color-surface-raised);
-  box-shadow: var(--shadow-card);
 }
 
 /* BlockNote sets the same variables on `.bn-root` and on
@@ -152,68 +146,6 @@
 .prototype :global(.bn-editor ::selection) {
   background: var(--color-selection);
   color: var(--color-selection-text);
-}
-
-.inspector {
-  display: grid;
-  gap: var(--space-sm);
-  align-content: start;
-  padding: var(--space-md);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-large);
-  background: var(--color-surface);
-}
-
-.inspectorTitle {
-  font-family: var(--font-display);
-  font-size: var(--font-size-large);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-snug);
-}
-
-.inspectorSubtitle {
-  font-family: var(--font-ui);
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-snug);
-  color: var(--color-text-muted);
-}
-
-.stats {
-  display: grid;
-  gap: var(--space-2xs);
-}
-
-.stat {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  font-family: var(--font-ui);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-snug);
-}
-
-.stat dt {
-  color: var(--color-text-muted);
-}
-
-.stat dd {
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text);
-}
-
-.searchText {
-  max-block-size: 14rem;
-  overflow: auto;
-  padding: var(--space-sm);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-medium);
-  background: var(--color-surface-sunken);
-  color: var(--color-text-muted);
-  font-family: var(--font-ui);
-  font-size: var(--font-size-small);
-  line-height: var(--line-height-snug);
-  white-space: pre-wrap;
 }
 
 /* Chrome built in editor-components.tsx, styled with the same tokens. */
