@@ -107,7 +107,7 @@ Copy `.env.example` to `.env.local` and fill in the values before running.
 - All domain operations resolve `UserId` server-side from the session.
 - UI code cannot import database clients (enforced by ESLint).
 
-See [docs/adr/](docs/adr/) and [docs/superpowers/specs/](docs/superpowers/specs/) for design decisions.
+See [docs/adr/](docs/adr/) and [docs/superpowers/specs/](docs/superpowers/specs/) for design decisions, [docs/development/editor.md](docs/development/editor.md) for how the block editor is built, and [docs/roadmap/notion-clone-mvp.md](docs/roadmap/notion-clone-mvp.md) for the delivery phases.
 
 ## Verification
 

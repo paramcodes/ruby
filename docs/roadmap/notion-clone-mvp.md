@@ -18,9 +18,11 @@ Decision rationale is recorded in [ADR 0001: MVP application stack](../adr/0001-
 
 - A signed-in individual account with one private workspace.
 - Nested pages, favorites, recent pages, search, archive and restore.
-- Block editing for paragraphs, headings, lists, checklists, quotes, dividers and code blocks.
+- Block editing for paragraphs, headings, lists, checklists, quotes, dividers, code blocks, and tables.
 - Slash commands, keyboard shortcuts, drag-to-reorder, undo/redo, autosave and reload persistence.
+- A selection toolbar for bold, italic, underline, strike, inline code, text and highlight colour, alignment, and links.
 - A distinct design system for navigation, editor controls, menus, dialogs, and forms.
+- A collapsible sidebar that becomes a drawer on narrow screens, and a breadcrumb path above every page title.
 
 Defer databases, formulas, public publishing, offline sync, comments, AI features, and real-time collaboration.
 
@@ -74,6 +76,14 @@ Each subphase is one focused session with a working, reviewable result. Split it
 - **6.2 Browser coverage:** add browser flows for high-risk journeys.
 - **6.3 Contributor docs:** document local setup, architecture map, and concise `AGENTS.md` guidance.
 - **Exit:** new contributor or agent can boot, change, and verify the app using documented commands.
+
+### 7. Notion-style workspace polish — complete
+
+- **7.1 Collapsible sidebar:** the rail collapses from its header control, `Cmd/Ctrl+\`, or a floating pill, and the choice persists in a cookie the server reads.
+- **7.2 Quiet rows:** row actions became an ellipsis that appears on hover or focus, the new-page field is borderless, and search reads as a row with a shortcut hint.
+- **7.3 Editor chrome:** a selection toolbar for styles, colours, alignment, and links, plus tables in the slash menu with handles that grow rows and columns.
+- **7.4 Orientation and small screens:** a breadcrumb path above the page title, and a drawer that replaces the rail on narrow screens.
+- **Exit:** the workspace reads as one product on a wide screen and a narrow one, and the editor exposes its formatting without a second UI package.
 
 ## Later: sharing and real-time collaboration
 

@@ -24,9 +24,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Architecture map
 
 - **Domains** (`src/server/`): `auth` (Better Auth boundary), `db` (Drizzle client + schema + migrations), `ids` (typed page IDs), `pages` (page commands, queries, content, favorites, recent-pages), `workspaces` (single private workspace per user). Domain operations establish `UserId` server-side.
-- **UI** (`src/components/`): `workspace` (sidebar, page-tree, page-actions, favorites-list, recent-pages-list, require-session), `editor` (page-editor, editor-adapter, editor-canvas, slash-menu, save-status), `ui` (button, dialog, input, menu — Radix-backed), `search` (search-dialog).
+- **UI** (`src/components/`): `workspace` (workspace-shell, sidebar, page-tree, page-actions, favorites-list, recent-pages-list, require-session), `editor` (page-editor, editor-adapter, editor-canvas, editor-components, formatting-toolbar, slash-menu, save-status), `ui` (button, dialog, input, menu — Radix-backed), `search` (search-dialog).
 - **Routes** (`src/app/`): `(auth)` sign-in/sign-up, `(workspace)` shell + pages, `(protected)` dashboard, `api/auth/[...all]` Better Auth handler.
 - **Editor adapter** (`src/components/editor/editor-adapter.ts`): versioned `EditorDocument` (`schemaVersion`), parse/serialize, search-text extraction. Editor serialization never leaks into the page domain.
+- **BlockNote chrome** (`src/components/editor/editor-components.tsx`): the `ComponentsContext` replaces BlockNote's defaults wholesale, so every group a mounted feature reads must exist there. See [Editor](docs/development/editor.md).
 - **Design tokens** (`src/styles/tokens.css`): OKLCH semantic colors, typography, spacing, borders, focus rings, motion. Imported via `globals.css`.
 
 ## Hard rules (enforced by tooling)
@@ -43,4 +44,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - [ADR 0002 — Domain boundaries](docs/adr/0002-domain-boundaries-and-agent-verification.md)
 - [ADR 0003 — Authentication](docs/adr/0003-authentication-for-the-mvp.md)
 - [Local setup](docs/development/local-setup.md)
-- [Editor prototype checklist](docs/editor-prototype-checklist.md)
+- [Editor](docs/development/editor.md) — the adapter boundary, the BlockNote components context, and the focus rules the toolbar depends on
+- [Roadmap](docs/roadmap/notion-clone-mvp.md)
+- [Editor prototype checklist](docs/editor-prototype-checklist.md) — historical record of the editor decision

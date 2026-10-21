@@ -1,6 +1,15 @@
 # Editor prototype checklist
 
-Prototype route: `/editor-prototype` (signed-in workspace only).
+> **Status: historical record.** The `/editor-prototype` route was folded into
+> the product editor, and the prototype files it names are gone. The decision
+> below still holds: BlockNote stays, its chrome is rendered from our own
+> primitives, and no theme package is imported. What changed since this pass:
+> the prototype's slash menu became the product slash menu, a selection
+> toolbar for styles, colours, alignment, and links was added, and tables
+> joined the block list. The current editor is described in
+> [Editor](../development/editor.md).
+
+Prototype route: `/editor-prototype` (signed-in workspace only, since removed).
 Adapter: `src/components/editor/editor-adapter.ts`.
 Prototype: `src/components/editor/editor-prototype.tsx` and
 `editor-prototype-canvas.tsx`.
