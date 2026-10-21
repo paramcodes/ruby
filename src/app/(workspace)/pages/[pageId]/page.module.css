@@ -91,3 +91,51 @@
   flex-wrap: wrap;
   gap: var(--space-2xs);
 }
+
+/* Breadcrumb trail above the title: quiet, truncating, and one link per
+   ancestor so the path is navigable in both directions. */
+.breadcrumb {
+  min-inline-size: 0;
+}
+
+.breadcrumbList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+}
+
+.breadcrumbItem {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3xs);
+  min-inline-size: 0;
+  color: var(--color-text-subtle);
+}
+
+.breadcrumbItem + .breadcrumbItem::before {
+  content: "/";
+  color: var(--color-text-subtle);
+}
+
+.breadcrumbLink {
+  overflow-wrap: anywhere;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.breadcrumbLink:hover {
+  color: var(--color-text);
+  text-decoration: underline;
+}
+
+.breadcrumbCurrent {
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+}

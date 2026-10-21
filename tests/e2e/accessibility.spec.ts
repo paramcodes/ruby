@@ -154,7 +154,7 @@ test.describe("shell accessibility", () => {
     await expect(page.getByRole("button", { name: "Search" })).toBeVisible();
   });
 
-  test("sidebar does not overlap the writing canvas at a narrow viewport", async ({
+  test("the sidebar becomes a drawer at a narrow viewport", async ({
     page
   }) => {
     await signUp(page, "responsive");
@@ -164,27 +164,40 @@ test.describe("shell accessibility", () => {
 
     const sidebar = page.locator('aside[aria-label="Workspace navigation"]');
     const editor = page.locator(".bn-editor");
+    const menuButton = page.getByRole("button", { name: "Open navigation" });
 
-    await expect(sidebar).toBeVisible();
+    // The rail is off-canvas, so the writing canvas owns the whole width.
+    await expect(menuButton).toBeVisible();
     await expect(editor).toBeVisible();
 
-    const sidebarBox = await sidebar.boundingBox();
+    const closedBox = await sidebar.boundingBox();
     const editorBox = await editor.boundingBox();
 
-    expect(sidebarBox).not.toBeNull();
+    expect(closedBox).not.toBeNull();
     expect(editorBox).not.toBeNull();
+    // The closed rail sits entirely to the left of the viewport.
+    expect(closedBox!.x + closedBox!.width).toBeLessThanOrEqual(1);
+    // The editor starts at the top of the content area, with no rail above.
+    expect(editorBox!.y).toBeLessThan(200);
 
-    // At narrow viewport the layout becomes a single column: the sidebar
-    // sits above the main content, so the editor must start below the sidebar
-    // rather than beside it or overlapped by it.
-    expect(editorBox!.y).toBeGreaterThanOrEqual(sidebarBox!.y);
-    // The editor's top edge should be at or below the sidebar's bottom edge.
-    const sidebarBottom = sidebarBox!.y + sidebarBox!.height;
-    expect(editorBox!.y).toBeGreaterThanOrEqual(sidebarBottom - 1); // 1px tolerance
-
-    // The editor must remain interactive at the narrow width.
+    // The editor stays usable with the drawer closed.
     await editor.click();
     await page.keyboard.type("Narrow viewport edit.");
     await expect(editor).toContainText("Narrow viewport edit.");
+
+    // Opening the drawer slides the rail in over the content.
+    await menuButton.click();
+    await page.waitForTimeout(400);
+    const openBox = await sidebar.boundingBox();
+    expect(openBox!.x).toBeGreaterThanOrEqual(-1);
+
+    // The scrim closes the drawer again. The click lands beside the drawer,
+    // because the drawer itself covers the middle of the scrim.
+    await page
+      .getByRole("button", { name: "Close navigation" })
+      .click({ position: { x: 460, y: 700 } });
+    await page.waitForTimeout(400);
+    const reclosedBox = await sidebar.boundingBox();
+    expect(reclosedBox!.x + reclosedBox!.width).toBeLessThanOrEqual(1);
   });
 });

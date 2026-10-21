@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
-import { and, asc, eq, isNotNull, isNull } from "drizzle-orm";
+import { and, asc, eq, isNotNull, isNull, sql } from "drizzle-orm";
 
 import type { UserId } from "@/server/auth/types";
 import { db } from "@/server/db/client";
@@ -89,6 +89,63 @@ export async function getPageForUser(
     updatedAt: row.updatedAt
   };
 }
+
+type AncestorRow = {
+  id: string;
+  parent_id: string | null;
+  title: string;
+  sort_order: number;
+  archived_at: Date | null;
+  depth: number;
+};
+
+// The chain of parents above a page, ordered from the root down to the
+// immediate parent. A recursive query keeps this to one round trip no matter
+// how deep the page tree runs.
+export const listPageAncestors = cache(
+  async (userId: UserId, pageId: PageId): Promise<PageSummary[]> => {
+    const rows = await db.execute<AncestorRow>(sql`
+      WITH RECURSIVE ancestors AS (
+        SELECT
+          p.id,
+          p.parent_id,
+          p.title,
+          p.sort_order,
+          p.archived_at,
+          0 AS depth
+        FROM page p
+        INNER JOIN workspace w ON w.id = p.workspace_id
+        WHERE p.id = ${pageId} AND w.user_id = ${userId}
+        UNION ALL
+        SELECT
+          parent.id,
+          parent.parent_id,
+          parent.title,
+          parent.sort_order,
+          parent.archived_at,
+          ancestors.depth + 1
+        FROM page parent
+        INNER JOIN ancestors ON parent.id = ancestors.parent_id
+      )
+      SELECT id, parent_id, title, sort_order, archived_at, depth
+      FROM ancestors
+      ORDER BY depth DESC
+    `);
+
+    // Depth 0 is the page itself; its ancestors are the rows above it.
+    return rows
+      .filter((row) => row.depth > 0)
+      .map((row) =>
+        toSummary({
+          id: row.id,
+          parentId: row.parent_id,
+          title: row.title,
+          sortOrder: row.sort_order,
+          archivedAt: row.archived_at
+        })
+      );
+  }
+);
 
 function toSummary(row: SummaryRow): PageSummary {
   return {

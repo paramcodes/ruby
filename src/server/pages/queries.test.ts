@@ -10,6 +10,7 @@ import { toPageId, type PageId } from "@/server/ids";
 import {
   getPageForUser,
   listArchivedPagesForUser,
+  listPageAncestors,
   listPagesForUser
 } from "@/server/pages/queries";
 import { page } from "@/server/pages/schema";
@@ -228,6 +229,53 @@ describe.skipIf(!hasDatabase)("page queries", () => {
     });
     expect(record?.createdAt).toBeInstanceOf(Date);
     expect(record?.updatedAt).toBeInstanceOf(Date);
+  });
+
+  it("lists the ancestors of a page from the root down to its parent", async () => {
+    await resetPages();
+
+    const root = await insertPage(workspaceA, { title: "Root" });
+    const middle = await insertPage(workspaceA, {
+      parentId: root,
+      title: "Middle"
+    });
+    const leaf = await insertPage(workspaceA, {
+      parentId: middle,
+      title: "Leaf"
+    });
+
+    const ancestors = await listPageAncestors(userA, asPageId(leaf));
+
+    expect(ancestors.map((ancestor) => ancestor.title)).toEqual([
+      "Root",
+      "Middle"
+    ]);
+    expect(ancestors[0]?.parentId).toBeNull();
+    expect(ancestors[1]?.id).toBe(asPageId(middle));
+  });
+
+  it("returns no ancestors for a page without a parent", async () => {
+    await resetPages();
+
+    const pageId = await insertPage(workspaceA, { title: "Top level" });
+
+    await expect(listPageAncestors(userA, asPageId(pageId))).resolves.toEqual(
+      []
+    );
+  });
+
+  it("returns no ancestors for another user's page", async () => {
+    await resetPages();
+
+    const parent = await insertPage(workspaceA, { title: "Parent" });
+    const child = await insertPage(workspaceA, {
+      parentId: parent,
+      title: "Child"
+    });
+
+    await expect(listPageAncestors(userB, asPageId(child))).resolves.toEqual(
+      []
+    );
   });
 
   it("returns null for another user's page and for a missing page", async () => {

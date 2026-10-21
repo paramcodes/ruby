@@ -83,6 +83,15 @@
   cursor: pointer;
 }
 
+/* Drawer furniture, shown only on narrow screens. */
+.scrim {
+  display: none;
+}
+
+.mobileBar {
+  display: none;
+}
+
 .expandFab:hover {
   color: var(--color-text);
 }
@@ -114,6 +123,101 @@
   }
 }
 
+/* Narrow screens: the rail becomes an overlay drawer that slides in over the
+   content, with a scrim that closes it. The desktop collapse state still
+   applies to wide screens only. */
+@media (max-width: 48rem) {
+  .shell,
+  .shell[data-collapsed] {
+    grid-template-columns: 1fr;
+    /* The bar takes its own row and the content fills the rest, so the
+       drawer control sits at the top instead of floating in a stretched
+       row. */
+    grid-template-rows: auto 1fr;
+    transition: none;
+  }
+
+  .sidebarRail {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 4;
+    inline-size: min(18rem, 84vw);
+    max-block-size: none;
+    border-inline-end: var(--border-width) solid var(--color-border);
+    border-block-end: 0;
+    box-shadow: var(--shadow-overlay);
+    transform: translateX(-100%);
+    transition: transform var(--duration-base) var(--ease-standard);
+  }
+
+  .shell[data-drawer="open"] .sidebarRail {
+    transform: translateX(0);
+  }
+
+  /* The drawer is hidden by its own transform, so the desktop collapse
+     rules must not also hide it from assistive technology. */
+  .shell[data-collapsed] .sidebarRail {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    display: block;
+    padding: 0;
+    border: 0;
+    background: color-mix(in oklab, var(--color-shadow) 28%, transparent);
+    cursor: pointer;
+  }
+
+  .mobileBar {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding-block: var(--space-2xs);
+    padding-inline: var(--space-sm);
+    border-block-end: var(--border-width) solid var(--color-border);
+    background: var(--color-canvas);
+  }
+
+  .mobileMenuButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2rem;
+    block-size: 2rem;
+    padding: 0;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-medium);
+    background: var(--color-surface-raised);
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .mobileMenuButton:hover {
+    color: var(--color-text);
+  }
+
+  .mobileMenuButton:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  .expandFab {
+    display: none;
+  }
+
+  .main {
+    padding-block-start: var(--space-md);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shell {
     transition: none;
@@ -121,5 +225,9 @@
 
   .shell[data-collapsed] .sidebarRail {
     transition-delay: 0s;
+  }
+
+  .sidebarRail {
+    transition: none;
   }
 }

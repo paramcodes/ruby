@@ -11,7 +11,7 @@ import { toPageId } from "@/server/ids";
 import { recordRecentPage } from "@/server/pages/recent-pages";
 import { isPageFavorited } from "@/server/pages/favorites";
 import { getPageContent } from "@/server/pages/content-commands";
-import { getPageForUser } from "@/server/pages/queries";
+import { getPageForUser, listPageAncestors } from "@/server/pages/queries";
 
 import styles from "./page.module.css";
 
@@ -67,10 +67,32 @@ export default async function PageRoute({ params }: PageRouteProps) {
   }
 
   const favorited = await isPageFavorited(user.id, page.id);
+  const ancestors = await listPageAncestors(user.id, page.id);
 
   return (
     <article className={styles.page}>
       <header className={styles.header}>
+        {ancestors.length > 0 ? (
+          <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
+            <ol className={styles.breadcrumbList}>
+              {ancestors.map((ancestor) => (
+                <li className={styles.breadcrumbItem} key={ancestor.id}>
+                  <Link
+                    className={styles.breadcrumbLink}
+                    href={`/pages/${ancestor.id}`}
+                  >
+                    {ancestor.title}
+                  </Link>
+                </li>
+              ))}
+              <li className={styles.breadcrumbItem}>
+                <span aria-current="page" className={styles.breadcrumbCurrent}>
+                  {page.title}
+                </span>
+              </li>
+            </ol>
+          </nav>
+        ) : null}
         <div className={styles.titleRow}>
           <h1 className={styles.title}>{page.title}</h1>
           <FavoriteToggle initial={favorited} pageId={page.id} />

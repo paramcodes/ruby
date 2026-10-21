@@ -99,6 +99,12 @@
     border-inline-end: 0;
     border-block-end: var(--border-width) solid var(--color-border);
   }
+
+  /* The drawer closes with the scrim, the menu button, or Escape; the
+     desktop collapse control would do nothing useful here. */
+  .collapseButton {
+    display: none;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {

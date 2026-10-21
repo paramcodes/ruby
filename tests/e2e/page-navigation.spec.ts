@@ -88,6 +88,48 @@ test("creates, renames, archives, restores, and isolates pages", async ({
   }
 });
 
+test("a nested page shows its parent path as a breadcrumb", async ({
+  page
+}) => {
+  await signUp(page, "breadcrumb");
+
+  // A parent page, created from the empty workspace.
+  await page.goto("/");
+  const main = page.getByRole("main");
+  await main.getByLabel("First page title").fill("Parent page");
+  await main.getByRole("button", { name: "Create your first page" }).click();
+  await expect(page).toHaveURL(/\/pages\/[^/]+$/);
+
+  // A second page, created from the sidebar.
+  await page.getByLabel("New page title").fill("Child page");
+  await page.getByRole("button", { name: "Create page" }).click();
+
+  const sidebar = page.getByRole("navigation", { name: "Pages" });
+  await expect(sidebar.getByRole("link", { name: "Child page" })).toBeVisible();
+
+  // Nest the child under the parent.
+  await page.getByRole("button", { name: "Actions for Child page" }).click();
+  await page.getByRole("menuitem", { name: "Move" }).click();
+
+  const moveDialog = page.getByRole("dialog", { name: "Move page" });
+  await moveDialog
+    .getByLabel("Destination")
+    .selectOption({ label: "Parent page" });
+  await moveDialog.getByRole("button", { name: "Move page" }).click();
+
+  await expect(moveDialog).toBeHidden();
+
+  // Opening the child shows the path back to the parent.
+  await sidebar.getByRole("link", { name: "Child page" }).click();
+  await expect(page).toHaveURL(/\/pages\/[^/]+$/);
+
+  const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
+  await expect(
+    breadcrumb.getByRole("link", { name: "Parent page" })
+  ).toBeVisible();
+  await expect(breadcrumb.getByText("Child page")).toBeVisible();
+});
+
 test("a second member signs back in without seeing another page tree", async ({
   page
 }) => {
