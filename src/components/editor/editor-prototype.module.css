@@ -309,3 +309,81 @@
   margin-block: var(--space-3xs);
   background: var(--color-border);
 }
+
+/* Selection bubble toolbar. Reuses the menu card language (same radius,
+   border, and elevation) so it reads as native to the prototype. */
+.formattingToolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3xs);
+  padding: var(--space-3xs);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-overlay);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+}
+
+.formattingButton,
+.formattingSelect {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3xs);
+  min-inline-size: 1.75rem;
+  block-size: 1.75rem;
+  padding: 0 var(--space-3xs);
+  border: 0;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+  cursor: pointer;
+}
+
+.formattingButton[data-glyph="bold"] {
+  font-weight: var(--font-weight-bold);
+}
+
+.formattingButton[data-glyph="italic"] {
+  font-style: italic;
+}
+
+.formattingButton[data-glyph="underline"] {
+  text-decoration: underline;
+}
+
+.formattingButton[data-glyph="strike"] {
+  text-decoration: line-through;
+}
+
+.formattingActive {
+  background: var(--color-accent-subtle);
+  color: var(--color-text);
+}
+
+.formattingSelect {
+  justify-content: space-between;
+  padding-inline: var(--space-2xs);
+  min-inline-size: 5.5rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .formattingButton:hover,
+  .formattingSelect:hover {
+    background: var(--color-surface);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .formattingButton,
+  .formattingSelect {
+    transition:
+      background-color var(--duration-fast) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard);
+  }
+}

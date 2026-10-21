@@ -13,6 +13,7 @@ import {
   type EditorDocument
 } from "./editor-adapter";
 import { useEditorKeyboardShortcuts } from "./keyboard-shortcuts";
+import { EditorFormattingToolbar } from "./formatting-toolbar";
 import styles from "./page-editor.module.css";
 import { EditorSlashMenu } from "./slash-menu";
 
@@ -48,7 +49,6 @@ export function EditorCanvas({ initialDocument, onChange }: EditorCanvasProps) {
               emojiPicker={false}
               filePanel={false}
               formattingToolbar={false}
-              linkToolbar={false}
               onChange={handleEditorChange}
               sideMenu
               slashMenu={false}
@@ -56,6 +56,7 @@ export function EditorCanvas({ initialDocument, onChange }: EditorCanvasProps) {
               comments={false}
             >
               <EditorSlashMenu editor={editor} />
+              <EditorFormattingToolbar />
             </BlockNoteViewRaw>
           </ComponentsContext.Provider>
         </div>
