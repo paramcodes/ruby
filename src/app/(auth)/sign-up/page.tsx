@@ -85,7 +85,7 @@ export default function SignUpPage() {
             </p>
           ) : null}
           <button className={styles.button} type="submit" disabled={pending}>
-            {pending ? "Creating..." : "Create account"}
+            {pending ? "Creating..." : "Sign up"}
           </button>
         </form>
         <p className={styles.footer}>

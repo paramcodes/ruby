@@ -71,7 +71,6 @@ export default async function PageRoute({ params }: PageRouteProps) {
   return (
     <article className={styles.page}>
       <header className={styles.header}>
-        <p className={styles.eyebrow}>Page</p>
         <div className={styles.titleRow}>
           <h1 className={styles.title}>{page.title}</h1>
           <FavoriteToggle initial={favorited} pageId={page.id} />

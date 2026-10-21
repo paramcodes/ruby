@@ -1,20 +1,16 @@
 .page {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-xl);
+  flex: 1;
+  min-inline-size: 0;
   max-inline-size: var(--measure);
+  margin-inline: auto;
 }
 
 .header {
   display: grid;
   gap: var(--space-sm);
-}
-
-.eyebrow {
-  color: var(--color-accent);
-  font-family: var(--font-ui);
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-snug);
 }
 
 .titleRow {
@@ -42,17 +38,22 @@
 }
 
 .body {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-sm);
-  padding-block-start: var(--space-md);
-  border-block-start: var(--border-width) solid var(--color-border);
+  flex: 1;
+  min-block-size: 0;
 }
 
+/* Kept only as the aria-labelledby target; visually hidden because the page
+   title already introduces the content section. */
 .sectionTitle {
-  font-family: var(--font-display);
-  font-size: var(--font-size-large);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-snug);
+  clip-path: inset(50%);
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
 }
 
 .placeholder {

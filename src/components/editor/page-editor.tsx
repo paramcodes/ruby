@@ -378,8 +378,6 @@ export function PageEditor({
 
   return (
     <div className={styles.editor}>
-      <SaveStatus onRetry={retry} state={saveState} />
-
       {conflictRevision !== null ? (
         <div className={styles.conflict} role="alert">
           <p className={styles.conflictTitle}>
@@ -409,6 +407,8 @@ export function PageEditor({
       ) : null}
 
       <EditorCanvas initialDocument={document} onChange={handleChange} />
+
+      <SaveStatus onRetry={retry} state={saveState} />
 
       <Dialog
         description="If you leave this page now, your unsaved edits will be lost."
