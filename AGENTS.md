@@ -13,7 +13,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 | Command             | Description                                                                                                                                            |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `pnpm format:check` | Prettier formatting check.                                                                                                                             |
-| `pnpm lint`         | ESLint on `src/app/` and `src/components/`.                                                                                                            |
+| `pnpm lint`         | ESLint on the whole project (`eslint .`).                                                                                                              |
 | `pnpm typecheck`    | `tsc --noEmit` with strict TypeScript.                                                                                                                 |
 | `pnpm test`         | Vitest unit and domain tests — **no database needed**.                                                                                                 |
 | `pnpm test:db`      | Vitest with database tests (set `REQUIRE_DB=1`).                                                                                                       |

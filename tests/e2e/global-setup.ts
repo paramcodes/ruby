@@ -55,7 +55,6 @@ export default async function globalSetup(config: Config): Promise<void> {
 
   // Protected routes short-circuit to /sign-in without a session, so they are
   // only compiled (and only useful to warm) once a cookie is established.
-  await client.getAuthed("/dashboard");
   await client.getAuthed("/");
   await client.getAuthed("/pages/warmup");
 }

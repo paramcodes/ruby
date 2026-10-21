@@ -82,7 +82,7 @@ Open <http://localhost:3000>. The seeded account is:
 | Command | Database needed? | Notes |
 | --- | --- | --- |
 | `pnpm format:check` | No | Prettier formatting check. |
-| `pnpm lint` | No | ESLint on `src/`. |
+| `pnpm lint` | No | ESLint on the whole project (`eslint .`). |
 | `pnpm typecheck` | No | `tsc --noEmit` against `tsconfig.json`. |
 | `pnpm test` | No | Unit and domain tests via Vitest. |
 | `pnpm build` | No | Next.js production build. |

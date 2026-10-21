@@ -84,7 +84,8 @@ export async function savePageContent(
         const rows = await tx
           .select({
             workspaceId: page.workspaceId,
-            revision: pageContent.revision
+            revision: pageContent.revision,
+            archivedAt: page.archivedAt
           })
           .from(page)
           .innerJoin(workspace, eq(page.workspaceId, workspace.id))
@@ -96,6 +97,13 @@ export async function savePageContent(
 
         if (!row) {
           return notFound();
+        }
+
+        if (row.archivedAt !== null) {
+          return {
+            status: "invalid",
+            message: "Archived pages cannot be edited."
+          };
         }
 
         const currentRevision = row.revision ?? noRevision;

@@ -3,6 +3,7 @@
 import { getCurrentUser } from "@/server/auth/current-user";
 import { toPageId } from "@/server/ids";
 import { addFavorite, removeFavorite } from "@/server/pages/favorites";
+import { getPageForUser } from "@/server/pages/queries";
 
 export type FavoriteActionResult =
   { ok: true } | { ok: false; error: "unauthenticated" | "not-found" };
@@ -22,6 +23,12 @@ export async function favoritePageAction(
     return { ok: false, error: "not-found" };
   }
 
+  const page = await getPageForUser(user.id, parsedId);
+
+  if (!page) {
+    return { ok: false, error: "not-found" };
+  }
+
   await addFavorite(user.id, parsedId);
   return { ok: true };
 }
@@ -38,6 +45,12 @@ export async function unfavoritePageAction(
   const parsedId = toPageId(pageId);
 
   if (!parsedId) {
+    return { ok: false, error: "not-found" };
+  }
+
+  const page = await getPageForUser(user.id, parsedId);
+
+  if (!page) {
     return { ok: false, error: "not-found" };
   }
 

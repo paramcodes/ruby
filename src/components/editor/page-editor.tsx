@@ -216,6 +216,11 @@ export function PageEditor({
 
       if (timer.current !== null) {
         clearTimeout(timer.current);
+        timer.current = null;
+      }
+
+      if (dirtyRef.current && conflict.current === null && !inFlight.current) {
+        void saveLatestRef.current();
       }
     };
   }, []);

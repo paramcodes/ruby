@@ -19,7 +19,10 @@ export async function signUp(page: Page, prefix = "member"): Promise<string> {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign up" }).click();
-  await expect(page).toHaveURL(/\/dashboard/);
+  await expect(page).toHaveURL(/^http:\/\/127\.0\.0\.1:3100\/$/);
+  await expect(
+    page.getByRole("heading", { name: "Your workspace" })
+  ).toBeVisible();
 
   return email;
 }

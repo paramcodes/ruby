@@ -22,7 +22,14 @@ export const listFavorites = cache(
       .select(summaryColumns)
       .from(favorite)
       .innerJoin(page, eq(favorite.pageId, page.id))
-      .where(and(eq(favorite.userId, userId), isNull(page.archivedAt)))
+      .innerJoin(workspace, eq(page.workspaceId, workspace.id))
+      .where(
+        and(
+          eq(favorite.userId, userId),
+          eq(workspace.userId, userId),
+          isNull(page.archivedAt)
+        )
+      )
       .orderBy(desc(favorite.createdAt), asc(page.title));
 
     return rows.map(toSummary);

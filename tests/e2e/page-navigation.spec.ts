@@ -99,7 +99,7 @@ test("a second member signs back in without seeing another page tree", async ({
   await page.getByLabel("Password").fill("password1234");
   await page.getByRole("button", { name: "Sign in" }).click();
 
-  await expect(page).toHaveURL(/\/dashboard/);
+  await expect(page).toHaveURL(/^http:\/\/127\.0\.0\.1:3100\/$/);
 
   await page.goto("/");
   await expect(

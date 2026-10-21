@@ -87,7 +87,15 @@ export default async function PageRoute({ params }: PageRouteProps) {
         <h2 className={styles.sectionTitle} id="page-content-heading">
           Page content
         </h2>
-        {content.status === "ok" ? (
+        {page.archivedAt ? (
+          <div className={styles.loadError} role="status">
+            <h3 className={styles.loadErrorTitle}>This page is archived</h3>
+            <p className={styles.loadErrorText}>
+              Archived pages are read-only. Restore the page from the Archived
+              section in the sidebar to edit it again.
+            </p>
+          </div>
+        ) : content.status === "ok" ? (
           <PageEditor
             initialDocument={content.document}
             initialRevision={content.revision}

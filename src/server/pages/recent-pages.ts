@@ -24,7 +24,14 @@ export const listRecentPages = cache(
       .select(summaryColumns)
       .from(pageView)
       .innerJoin(page, eq(pageView.pageId, page.id))
-      .where(and(eq(pageView.userId, userId), isNull(page.archivedAt)))
+      .innerJoin(workspace, eq(page.workspaceId, workspace.id))
+      .where(
+        and(
+          eq(pageView.userId, userId),
+          eq(workspace.userId, userId),
+          isNull(page.archivedAt)
+        )
+      )
       .orderBy(desc(pageView.viewedAt), asc(page.title))
       .limit(RECENT_LIMIT);
 
