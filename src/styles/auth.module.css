@@ -1,0 +1,108 @@
+.shell {
+  min-block-size: 100svh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-lg);
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+}
+
+.card {
+  inline-size: min(100%, 24rem);
+  display: grid;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-card);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-title);
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  margin: 0;
+}
+
+.form {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-3xs);
+}
+
+.label {
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.input {
+  block-size: 2.75rem;
+  padding-inline: var(--space-sm);
+  border: var(--border-width) solid var(--color-border-interactive);
+  border-radius: var(--radius-medium);
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-body);
+}
+
+.input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-color: var(--color-accent);
+}
+
+.button {
+  block-size: 2.75rem;
+  border: var(--border-width) solid var(--color-accent);
+  border-radius: var(--radius-medium);
+  background: var(--color-accent);
+  color: var(--color-canvas);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: var(--font-size-small);
+  margin: 0;
+}
+
+.link {
+  color: var(--color-accent);
+  font-size: var(--font-size-small);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.footer {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  text-align: center;
+  margin: 0;
+}

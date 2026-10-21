@@ -21,11 +21,11 @@
 
 .editorFrame {
   min-inline-size: 0;
-  padding: var(--space-md);
+  padding: var(--space-sm);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-large);
   background: var(--color-surface-raised);
-  box-shadow: var(--shadow-raised);
+  box-shadow: var(--shadow-card);
 }
 
 /* BlockNote sets the same variables on `.bn-root` and on
