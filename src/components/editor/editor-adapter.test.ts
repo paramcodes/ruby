@@ -284,6 +284,24 @@ describe("editor commands", () => {
     });
   });
 
+  it("builds a table with a header row and three columns", () => {
+    const table = createEditorBlock("table") as unknown as {
+      type: string;
+      content: {
+        type: string;
+        headerRows: number;
+        rows: { cells: unknown[] }[];
+      };
+    };
+
+    expect(table.type).toBe("table");
+    expect(table.content.type).toBe("tableContent");
+    expect(table.content.headerRows).toBe(1);
+    expect(table.content.rows).toHaveLength(3);
+    expect(table.content.rows[0]?.cells).toHaveLength(3);
+    expect(table.content.rows[2]?.cells).toEqual(["", "", ""]);
+  });
+
   it("replaces a blank paragraph and inserts after a block with content", () => {
     const blank = fakeEditor({
       id: "blank",

@@ -86,7 +86,8 @@ export type EditorBlockKind =
   | "checklist"
   | "quote"
   | "divider"
-  | "code-block";
+  | "code-block"
+  | "table";
 
 export type EditorCommandBlock = {
   id: string;
@@ -116,6 +117,25 @@ export type EditorCommandHost = {
   redo(): boolean;
 };
 
+// A table carries its shape in its content, not in props: one header row and
+// three columns of empty cells. The editor fills the cells as the user types.
+function createTableBlock(
+  rows: number,
+  columns: number
+): EditorPartialBlockList[number] {
+  return {
+    type: "table",
+    content: {
+      type: "tableContent",
+      headerRows: 1,
+      headerCols: 0,
+      rows: Array.from({ length: rows }, () => ({
+        cells: Array.from({ length: columns }, () => "")
+      }))
+    }
+  } as unknown as EditorPartialBlockList[number];
+}
+
 const blockCommands: Record<EditorBlockKind, EditorPartialBlockList[number]> = {
   paragraph: { type: "paragraph" },
   "heading-1": { type: "heading", props: { level: 1 } },
@@ -126,7 +146,8 @@ const blockCommands: Record<EditorBlockKind, EditorPartialBlockList[number]> = {
   checklist: { type: "checkListItem", props: { checked: false } },
   quote: { type: "quote" },
   divider: { type: "divider" },
-  "code-block": { type: "codeBlock", props: { language: "text" } }
+  "code-block": { type: "codeBlock", props: { language: "text" } },
+  table: createTableBlock(3, 3)
 };
 
 export function createEditorBlock(

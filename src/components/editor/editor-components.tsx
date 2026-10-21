@@ -242,6 +242,49 @@ function MenuButton({
   );
 }
 
+function TableHandleRoot({
+  children,
+  className,
+  draggable,
+  label,
+  onDragEnd,
+  onDragStart,
+  style
+}: ComponentPropsOf<"TableHandle", "Root">) {
+  return (
+    <div
+      className={[styles.tableHandle, className].filter(Boolean).join(" ")}
+      draggable={draggable}
+      onDragEnd={onDragEnd}
+      onDragStart={onDragStart}
+      style={style}
+      title={label}
+    >
+      {children}
+    </div>
+  );
+}
+
+function TableHandleExtendButton({
+  children,
+  className,
+  onClick,
+  onMouseDown
+}: ComponentPropsOf<"TableHandle", "ExtendButton">) {
+  return (
+    <button
+      className={[styles.tableHandleExtend, className]
+        .filter(Boolean)
+        .join(" ")}
+      onClick={onClick}
+      onMouseDown={onMouseDown}
+      type="button"
+    >
+      {children}
+    </button>
+  );
+}
+
 // BlockNote's `Components` type covers every optional feature. The prototype
 // only enables slash menu and side menu, so the unused groups are absent at
 // runtime. The cast keeps that reduced surface explicit in one place.
@@ -253,6 +296,10 @@ export const prototypeComponents = {
     Item: SuggestionMenuItem,
     Label: SuggestionMenuLabel,
     Loader: SuggestionMenuLoader
+  },
+  TableHandle: {
+    Root: TableHandleRoot,
+    ExtendButton: TableHandleExtendButton
   },
   Generic: {
     Menu: {

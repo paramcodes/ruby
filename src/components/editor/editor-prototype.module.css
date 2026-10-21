@@ -387,3 +387,178 @@
       color var(--duration-fast) var(--ease-standard);
   }
 }
+
+.formattingColor {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-inline-size: 2rem;
+  block-size: 1.75rem;
+  padding: 0 var(--space-3xs);
+  border: 0;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.formattingColorMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 0.9rem;
+  block-size: 0.9rem;
+  border-radius: 2px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+.formattingColorMark[data-variant="text"] {
+  background: transparent;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.formattingChevron {
+  color: var(--color-text-subtle);
+  font-size: 0.6rem;
+}
+
+.formattingSwatches {
+  display: grid;
+  grid-template-columns: repeat(3, 1.5rem);
+  gap: var(--space-3xs);
+  padding: var(--space-2xs);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-overlay);
+}
+
+.formattingSwatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  padding: 0;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+
+.formattingSwatch:hover,
+.formattingSwatch[data-highlighted] {
+  border-color: var(--color-border-interactive);
+}
+
+.formattingSwatchChip {
+  inline-size: 0.9rem;
+  block-size: 0.9rem;
+  border-radius: 2px;
+}
+
+.formattingDivider {
+  inline-size: var(--border-width);
+  block-size: 1.1rem;
+  margin-inline: var(--space-3xs);
+  background: var(--color-border);
+}
+
+.formattingLinkField {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3xs);
+}
+
+.formattingLinkInput {
+  inline-size: 12rem;
+  padding-block: 2px;
+  padding-inline: var(--space-2xs);
+  border: var(--border-width) solid var(--color-border-interactive);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+}
+
+.formattingLinkInput:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: -1px;
+}
+
+.formattingLinkRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.formattingLinkRemove:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Keeps a name for icon-only swatches without giving them a footprint. */
+.visuallyHidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Table handles: a quiet grab handle on the row and column edges, plus the
+   small control that adds a row or a column. */
+.tableHandle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text-subtle);
+  cursor: grab;
+}
+
+.tableHandle:hover {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+
+.tableHandleExtend {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  padding: 0;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.tableHandleExtend:hover {
+  color: var(--color-text);
+}
+
+.tableHandleExtend:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}

@@ -49,10 +49,12 @@ export function EditorCanvas({ initialDocument, onChange }: EditorCanvasProps) {
               emojiPicker={false}
               filePanel={false}
               formattingToolbar={false}
+              // The formatting toolbar owns link editing, so BlockNote's own
+              // link toolbar stays off.
+              linkToolbar={false}
               onChange={handleEditorChange}
               sideMenu
               slashMenu={false}
-              tableHandles={false}
               comments={false}
             >
               <EditorSlashMenu editor={editor} />

@@ -80,6 +80,12 @@ export const slashMenuItemDefinitions: readonly SlashMenuItem[] = [
     title: "Code Block",
     subtext: "Preformatted code",
     aliases: ["code", "pre", "snippet"]
+  },
+  {
+    kind: "table",
+    title: "Table",
+    subtext: "Rows and columns",
+    aliases: ["grid", "table", "rows", "columns"]
   }
 ];
 
