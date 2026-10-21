@@ -1,28 +1,35 @@
 .editor {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: var(--space-sm);
-  flex: 1;
-  min-block-size: 0;
 }
 
 .editorCanvas {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  display: grid;
   gap: var(--space-2xs);
   min-inline-size: 0;
 }
 
-.saveStatus {
+.toolbar {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2xs);
+}
+
+.saveStatus {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
   align-items: center;
+  min-block-size: 1.5rem;
+  padding: var(--space-3xs) var(--space-2xs);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: var(--color-surface-raised);
   color: var(--color-text-muted);
   font-family: var(--font-ui);
   font-size: var(--font-size-small);
   line-height: var(--line-height-snug);
+  box-shadow: var(--shadow-raised);
 }
 
 .saveStatus[data-status="error"],

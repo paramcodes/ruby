@@ -5,8 +5,6 @@
 }
 
 .main {
-  display: flex;
-  flex-direction: column;
   min-inline-size: 0;
   padding-block: var(--space-xl);
   padding-inline: var(--space-lg);

@@ -55,7 +55,7 @@
   --font-size-body: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
   --font-size-large: clamp(1.125rem, 1.05rem + 0.35vw, 1.375rem);
 
-  /* In-document headings must sit below the page title (--font-size-title),
+  /* In-document headings sit below the page title (--font-size-title),
      the way Notion scales page H1 below the title. */
   --font-size-heading-1: clamp(1.5rem, 1.34rem + 0.8vw, 1.875rem);
   --font-size-heading-2: clamp(1.3125rem, 1.25rem + 0.3vw, 1.5rem);
