@@ -15,9 +15,16 @@ workspace per account, deterministic seed data, and a full verification suite.
 1. **Sign in** or create an account.
 2. **Create a page** from the sidebar.
 3. **Write** in the block editor — content autosaves as you type.
-4. **Navigate** via the page tree, favorites, or recent pages.
-5. **Search** with `Cmd/Ctrl+K` to find pages by title or content.
-6. **Archive** a page you no longer need and **restore** it later.
+4. **Format** by selecting text: bold, italic, underline, strike, inline
+   code, text and highlight colours, alignment, and links. Type `/` for
+   headings, lists, quotes, code blocks, and tables.
+5. **Navigate** via the page tree, favorites, recent pages, or the
+   breadcrumb path above a page title.
+6. **Search** with `Cmd/Ctrl+K` to find pages by title or content.
+7. **Archive** a page you no longer need and **restore** it later.
+
+The sidebar collapses with `Cmd/Ctrl+\` and becomes a drawer on narrow
+screens.
 
 ## Demo
 
