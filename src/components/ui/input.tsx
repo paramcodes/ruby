@@ -6,16 +6,19 @@ export type InputProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
   "id"
 > & {
-  label: string;
   description?: string;
   error?: string;
+  /** Hides the visible label but keeps the accessible name. */
+  hideLabel?: boolean;
   id?: string;
+  label: string;
 };
 
 export function Input({
   className,
   description,
   error,
+  hideLabel = false,
   id,
   label,
   ...props
@@ -32,7 +35,7 @@ export function Input({
     .join(" ");
 
   return (
-    <div className={styles.field}>
+    <div className={hideLabel ? styles.viewlessField : styles.field}>
       <label className={styles.label} htmlFor={inputId}>
         {label}
       </label>

@@ -3,8 +3,9 @@
   align-items: center;
   gap: var(--space-2xs);
   width: 100%;
-  padding: var(--space-3xs) 0;
-  color: var(--color-text);
+  padding: var(--space-3xs) var(--space-2xs);
+  border-radius: var(--radius-small);
+  color: var(--color-text-muted);
   font-family: var(--font-ui);
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-medium);
@@ -15,14 +16,33 @@
   cursor: pointer;
 }
 
-.trigger span {
+.triggerIcon {
+  flex: none;
+}
+
+.triggerLabel {
   display: inline-flex;
   align-items: center;
+  flex: 1;
+  color: var(--color-text);
+}
+
+.triggerHint {
+  /* Platform-neutral hint; the actual binding is Cmd on macOS and Ctrl
+     elsewhere, so the tag text stays generic and the title carries it. */
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  color: var(--color-text-subtle);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .trigger:hover {
-    color: var(--color-accent-hover);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .trigger:hover .triggerLabel {
+    color: var(--color-text);
   }
 }
 

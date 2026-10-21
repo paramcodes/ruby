@@ -1,16 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 
 import { searchAction, type SearchResult } from "@/app/actions/search";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
+import { SearchIcon } from "@/components/workspace/icons";
 
 import styles from "./search-dialog.module.css";
 
 const DEBOUNCE_MS = 250;
 const MAX_QUERY_LENGTH = 200;
+
+// Platform label for the shortcut hint. useSyncExternalStore keeps this
+// server-safe: hydration renders the generic mac-style glyph, then the client
+// switches to its platform text without a mismatch error or an effect.
+const subscribeHint = () => () => {};
+function getHintServer() {
+  return "⌘K";
+}
+function getHintClient() {
+  return /Mac|iPhone|iPad/.test(navigator.platform) ? "⌘K" : "Ctrl K";
+}
 
 // A workspace-wide search triggered from the sidebar or via Cmd+K / Ctrl+K.
 // The dialog own-focuses its input, debounces server calls, and renders
@@ -21,6 +33,11 @@ export function SearchDialog() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const shortcutHint = useSyncExternalStore(
+    subscribeHint,
+    getHintClient,
+    getHintServer
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const requestRef = useRef(0);
 
@@ -128,7 +145,13 @@ export function SearchDialog() {
           size="sm"
           variant="ghost"
         >
-          <span aria-hidden="true">Search</span>
+          <SearchIcon className={styles.triggerIcon} size={14} />
+          <span className={styles.triggerLabel} aria-hidden="true">
+            Search
+          </span>
+          <kbd className={styles.triggerHint} title="Cmd or Ctrl + K">
+            {shortcutHint}
+          </kbd>
         </Button>
       }
     >

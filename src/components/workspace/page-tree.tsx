@@ -6,6 +6,7 @@ import { useId, useState } from "react";
 import { type PageId } from "@/server/ids";
 import type { PageSummary } from "@/server/pages/types";
 
+import { ChevronRightIcon } from "./icons";
 import styles from "./page-tree.module.css";
 
 export type PageTreeProps = {
@@ -85,12 +86,12 @@ export function PageTree({
                       page.title
                     }`}
                     className={styles.toggle}
+                    data-expanded={isExpanded ? "" : undefined}
                     onClick={() => toggle(page.id)}
+                    title={isExpanded ? "Collapse page" : "Expand page"}
                     type="button"
                   >
-                    <span aria-hidden="true">
-                      {isExpanded ? "\u25be" : "\u25b8"}
-                    </span>
+                    <ChevronRightIcon size={12} />
                   </button>
                 ) : (
                   <span aria-hidden="true" className={styles.toggleSpacer} />

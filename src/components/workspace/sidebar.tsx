@@ -7,6 +7,8 @@ import { useState } from "react";
 import { createPageAction } from "@/app/actions/pages";
 import type { PageSummary } from "@/server/pages/types";
 
+import { CollapseSidebarIcon } from "./icons";
+
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { requestAppNavigation } from "../navigation-guard";
@@ -19,6 +21,7 @@ import styles from "./sidebar.module.css";
 
 export type SidebarProps = {
   favorites?: readonly PageSummary[];
+  onCollapse?: () => void;
   /** Active and archived pages. Archived pages render in a separate section. */
   pages: readonly PageSummary[];
   recentPages?: readonly PageSummary[];
@@ -26,6 +29,7 @@ export type SidebarProps = {
 
 export function Sidebar({
   favorites = [],
+  onCollapse,
   pages,
   recentPages = []
 }: SidebarProps) {
@@ -34,12 +38,29 @@ export function Sidebar({
   const activePages = pages.filter((page) => page.archivedAt === null);
 
   return (
-    <aside aria-label="Workspace navigation" className={styles.sidebar}>
+    <div className={styles.sidebar}>
       <header className={styles.header}>
-        <Link className={styles.brand} href="/">
-          Individual Wiki
-        </Link>
-        <p className={styles.workspace}>Private workspace</p>
+        <div className={styles.brandRow}>
+          <span className={styles.brandGroup}>
+            <Link className={styles.brand} href="/">
+              Individual Wiki
+            </Link>
+            <p className={styles.workspace}>Private workspace</p>
+          </span>
+          {onCollapse ? (
+            <button
+              aria-controls="workspace-sidebar"
+              aria-expanded={true}
+              aria-label="Collapse sidebar"
+              className={styles.collapseButton}
+              onClick={onCollapse}
+              title="Close sidebar (⌘\)"
+              type="button"
+            >
+              <CollapseSidebarIcon />
+            </button>
+          ) : null}
+        </div>
       </header>
 
       <CreatePageForm />
@@ -57,7 +78,7 @@ export function Sidebar({
         <FavoritesList favorites={[...favorites]} />
         <RecentPagesList recentPages={[...recentPages]} />
       </div>
-    </aside>
+    </div>
   );
 }
 
@@ -102,13 +123,15 @@ export function CreatePageForm({
   return (
     <form className={styles.createForm} onSubmit={submit}>
       <Input
+        hideLabel
         label={fieldLabel}
         onChange={(event) => setTitle(event.target.value)}
+        placeholder="New page title"
         required
         value={title}
         {...(error ? { error } : {})}
       />
-      <Button disabled={pending} size="sm" type="submit">
+      <Button disabled={pending} size="sm" type="submit" variant="ghost">
         {pending ? "Creating..." : submitLabel}
       </Button>
     </form>

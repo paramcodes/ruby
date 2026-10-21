@@ -1,3 +1,36 @@
+.viewlessField {
+  display: grid;
+  gap: var(--space-3xs);
+  font-family: var(--font-ui);
+  min-inline-size: 0;
+}
+
+/* The label stays in the tree for the accessible name, but no pixel is left
+   behind: matching the visually-hidden pattern used across the app. */
+.viewlessField .label {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.viewlessField .input {
+  border-color: transparent;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--font-size-small);
+  padding-block: var(--space-2xs);
+  padding-inline: var(--space-2xs);
+}
+
+.viewlessField .input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: -1px;
+}
+
 .field {
   display: grid;
   gap: var(--space-3xs);

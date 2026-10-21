@@ -6,16 +6,15 @@
 .list,
 .archiveList {
   display: grid;
-  gap: var(--space-3xs);
+  gap: 1px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .nested {
-  margin-block-start: var(--space-3xs);
-  margin-inline-start: var(--space-2xs);
-  padding-inline-start: var(--space-xs);
+  margin-inline-start: 1.25rem;
+  padding-inline-start: var(--space-3xs);
   border-inline-start: var(--border-width) solid var(--color-border);
 }
 
@@ -27,15 +26,35 @@
 .row,
 .archiveItem {
   display: flex;
-  align-items: center;
-  gap: var(--space-3xs);
+  align-items: stretch;
+  gap: 0;
+  border-radius: var(--radius-small);
+}
+
+/* Row chrome stays out of the way until the pointer or keyboard lands on it.
+   A menu that is still open also keeps its trigger visible (:has reads the
+   Radix data-state on the trigger button). */
+.actions {
+  flex: none;
+  align-self: center;
+  margin-right: var(--space-3xs);
+  opacity: 0;
+}
+
+.row:hover .actions,
+.row:focus-within .actions,
+.row:has(.actions [data-state="open"]) .actions,
+.archiveItem:hover .actions,
+.archiveItem:focus-within .actions,
+.archiveItem:has(.actions [data-state="open"]) .actions {
+  opacity: 1;
 }
 
 .toggle,
 .toggleSpacer {
   flex: none;
-  inline-size: var(--space-sm);
-  block-size: var(--space-sm);
+  inline-size: 1.25rem;
+  block-size: 1.75rem;
 }
 
 .toggle {
@@ -46,11 +65,17 @@
   border: 0;
   border-radius: var(--radius-small);
   background: transparent;
-  color: var(--color-text-muted);
-  font-family: var(--font-ui);
-  font-size: var(--font-size-small);
-  line-height: 1;
+  color: var(--color-text-subtle);
   cursor: pointer;
+}
+
+.toggle svg {
+  block-size: 12px;
+  inline-size: 12px;
+}
+
+.toggle[data-expanded] svg {
+  transform: rotate(90deg);
 }
 
 .toggle:focus-visible {
@@ -61,6 +86,8 @@
 .link {
   flex: 1;
   min-inline-size: 0;
+  display: flex;
+  align-items: center;
   padding-block: var(--space-3xs);
   padding-inline: var(--space-2xs);
   border-radius: var(--radius-small);
@@ -72,13 +99,13 @@
   overflow-wrap: anywhere;
 }
 
+.archiveItem .link {
+  color: var(--color-text-muted);
+}
+
 .link[aria-current="page"] {
   background: var(--color-accent-subtle);
   color: var(--color-text);
-}
-
-.actions {
-  flex: none;
 }
 
 .archive {
@@ -97,6 +124,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
+  .row:hover .link,
   .link:hover {
     background: var(--color-surface);
     color: var(--color-text);
@@ -107,11 +135,20 @@
   }
 }
 
+/* Touch never has a hover to reveal the menu trigger. */
+@media (hover: none) {
+  .actions {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .link,
-  .toggle {
+  .toggle,
+  .actions {
     transition:
       background-color var(--duration-fast) var(--ease-standard),
-      color var(--duration-fast) var(--ease-standard);
+      color var(--duration-fast) var(--ease-standard),
+      opacity var(--duration-fast) var(--ease-standard);
   }
 }

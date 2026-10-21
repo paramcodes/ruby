@@ -8,6 +8,7 @@ import { unfavoritePageAction } from "@/app/actions/favorites";
 import type { PageSummary } from "@/server/pages/types";
 
 import { Button } from "../ui/button";
+import { CloseIcon } from "./icons";
 import styles from "./favorites-list.module.css";
 
 export type FavoritesListProps = {
@@ -49,12 +50,14 @@ export function FavoritesList({ favorites }: FavoritesListProps) {
             </Link>
             <Button
               aria-label={`Remove ${favorite.title} from favorites`}
+              className={styles.remove}
               disabled={removing.has(favorite.id)}
               onClick={() => void unfavorite(favorite.id)}
               size="sm"
+              title="Remove from favorites"
               variant="ghost"
             >
-              ✕
+              <CloseIcon />
             </Button>
           </li>
         ))}

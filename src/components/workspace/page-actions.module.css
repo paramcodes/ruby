@@ -4,6 +4,18 @@
   gap: var(--space-3xs);
 }
 
+/* Icon-only row menu trigger: square, quiet, and lined up with the row text. */
+.trigger {
+  color: var(--color-text-muted);
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+}
+
+.trigger[data-state="open"] {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
 .error {
   max-inline-size: var(--measure-lead);
   color: var(--color-danger);

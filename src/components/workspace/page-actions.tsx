@@ -16,6 +16,7 @@ import { Button } from "../ui/button";
 import { Dialog } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Menu, MenuItem, MenuSeparator } from "../ui/menu";
+import { EllipsisIcon } from "./icons";
 import styles from "./page-actions.module.css";
 
 export type PageActionsProps = {
@@ -155,10 +156,12 @@ export function PageActions({ page, pages }: PageActionsProps) {
         trigger={
           <Button
             aria-label={`Actions for ${page.title}`}
+            className={styles.trigger}
             size="sm"
+            title="Page actions"
             variant="ghost"
           >
-            Actions
+            <EllipsisIcon />
           </Button>
         }
       >

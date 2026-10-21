@@ -1,0 +1,125 @@
+.shell {
+  /* The rail animates as a grid column so the content area reflows at the
+     same rate the rail collapses; overflow clipping keeps inner rail content
+     from spilling during the transition. */
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr);
+  min-block-size: 100svh;
+  transition: grid-template-columns var(--duration-base) var(--ease-standard);
+}
+
+.shell[data-collapsed] {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+
+.shell[data-collapsed] .sidebarRail {
+  border-inline-end-color: transparent;
+}
+
+.sidebarRail {
+  display: grid;
+  overflow: hidden;
+  border-inline-end: var(--border-width) solid var(--color-border);
+  background: var(--color-canvas);
+  inline-size: 17rem;
+  /* Visibility flips after the column finishes collapsing; on reopen it is
+     immediate so the rail appears as the column grows. */
+  transition: visibility 0s;
+}
+
+.shell[data-collapsed] .sidebarRail {
+  border-inline-end-color: transparent;
+  transition-delay: var(--duration-base);
+  visibility: hidden;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  padding-block: var(--space-xl);
+  padding-inline: var(--space-lg);
+}
+
+.skipLink {
+  position: absolute;
+  inset-block-start: var(--space-2xs);
+  inset-inline-start: var(--space-2xs);
+  z-index: 1;
+  padding-block: var(--space-3xs);
+  padding-inline: var(--space-2xs);
+  border: var(--border-width) solid var(--color-border-interactive);
+  border-radius: var(--radius-small);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  transform: translateY(-200%);
+}
+
+.skipLink:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  transform: translateY(0);
+}
+
+/* Floating pill that brings the sidebar back while it is collapsed. */
+.expandFab {
+  position: fixed;
+  inset-block-start: var(--space-xs);
+  inset-inline-start: var(--space-xs);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 1.75rem;
+  block-size: 1.75rem;
+  padding: 0;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+}
+
+.expandFab:hover {
+  color: var(--color-text);
+}
+
+.expandFab:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@media (max-width: 48rem) {
+  .shell,
+  .shell[data-collapsed] {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebarRail {
+    inline-size: 100%;
+    border-inline-end: 0;
+    border-block-end: var(--border-width) solid var(--color-border);
+    max-block-size: 50svh;
+  }
+
+  .shell[data-collapsed] .sidebarRail {
+    border-block-end-color: transparent;
+  }
+
+  .main {
+    padding-inline: var(--space-md);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell {
+    transition: none;
+  }
+
+  .shell[data-collapsed] .sidebarRail {
+    transition-delay: 0s;
+  }
+}

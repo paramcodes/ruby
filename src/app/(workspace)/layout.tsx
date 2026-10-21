@@ -1,7 +1,8 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { RequireSession } from "@/components/workspace/require-session";
-import { Sidebar } from "@/components/workspace/sidebar";
+import { WorkspaceShell } from "@/components/workspace/workspace-shell";
 import { getCurrentUser } from "@/server/auth/current-user";
 import {
   listArchivedPagesForUser,
@@ -9,8 +10,6 @@ import {
 } from "@/server/pages/queries";
 import { listFavorites } from "@/server/pages/favorites";
 import { listRecentPages } from "@/server/pages/recent-pages";
-
-import styles from "./layout.module.css";
 
 export default async function WorkspaceLayout({
   children
@@ -36,19 +35,19 @@ async function WorkspaceFrame({ children }: Readonly<React.PropsWithChildren>) {
       listRecentPages(user.id)
     ]);
 
+  // Sidebar preference lives in a cookie so the server renders the same
+  // collapsed state the visitor last used; no post-hydration flash.
+  const cookieStore = await cookies();
+  const initialCollapsed = cookieStore.get("wiki-sidebar")?.value === "closed";
+
   return (
-    <div className={styles.shell}>
-      <a className={styles.skipLink} href="#main-content">
-        Skip to content
-      </a>
-      <Sidebar
-        favorites={favorites}
-        pages={[...activePages, ...archivedPages]}
-        recentPages={recentPages}
-      />
-      <main className={styles.main} id="main-content">
-        {children}
-      </main>
-    </div>
+    <WorkspaceShell
+      favorites={favorites}
+      initialCollapsed={initialCollapsed}
+      pages={[...activePages, ...archivedPages]}
+      recentPages={recentPages}
+    >
+      {children}
+    </WorkspaceShell>
   );
 }
