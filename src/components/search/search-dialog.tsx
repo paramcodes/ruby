@@ -122,7 +122,12 @@ export function SearchDialog() {
       title="Search pages"
       description="Search your workspace pages by title and content."
       trigger={
-        <Button className={styles.trigger} size="sm" variant="ghost">
+        <Button
+          aria-label="Search"
+          className={styles.trigger}
+          size="sm"
+          variant="ghost"
+        >
           <span aria-hidden="true">Search</span>
         </Button>
       }

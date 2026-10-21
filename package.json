@@ -28,7 +28,7 @@
     "db:generate": "DATABASE_URL=${DATABASE_URL:-postgres://wiki:wiki@localhost:5432/wiki} drizzle-kit generate",
     "db:migrate": "DATABASE_URL=${DATABASE_URL:-postgres://wiki:wiki@localhost:5432/wiki} drizzle-kit migrate",
     "db:seed": "DATABASE_URL=${DATABASE_URL:-postgres://wiki:wiki@localhost:5432/wiki} tsx --conditions react-server src/server/db/seed.ts",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+    "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm db:migrate && pnpm test:db && pnpm test:e2e"
   },
   "dependencies": {
     "@blocknote/core": "^0.56.0",

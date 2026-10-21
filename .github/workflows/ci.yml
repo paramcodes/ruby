@@ -20,8 +20,8 @@ jobs:
           node-version: 26
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
       - run: pnpm format:check
+      - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
@@ -56,3 +56,38 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:migrate
       - run: pnpm test:db
+
+  browser:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wiki
+          POSTGRES_PASSWORD: wiki
+          POSTGRES_DB: wiki
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U wiki -d wiki"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://wiki:wiki@localhost:5432/wiki
+      BETTER_AUTH_URL: http://127.0.0.1:3100
+      BETTER_AUTH_SECRET: ci-test-secret-for-e2e-do-not-use-32ch
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.9.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:migrate
+      - run: pnpm db:seed
+      - run: npx playwright install --with-deps chromium
+      - run: pnpm test:e2e
