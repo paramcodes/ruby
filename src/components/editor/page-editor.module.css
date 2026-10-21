@@ -46,10 +46,11 @@
 .conflict {
   display: grid;
   gap: var(--space-2xs);
-  padding: var(--space-sm);
+  padding: var(--space-md);
   border: var(--border-width) solid var(--color-danger);
-  border-radius: var(--radius-medium);
+  border-radius: var(--radius-large);
   background: var(--color-surface-sunken);
+  box-shadow: var(--shadow-card);
 }
 
 .conflictTitle {
