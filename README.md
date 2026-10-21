@@ -47,6 +47,14 @@ Full-resolution recording: [docs/media/demo.webm](docs/media/demo.webm).
 | --------------------------------------------- | ----------------------------------------------------- |
 | ![Create page](docs/media/09-create-page.png) | ![Narrow viewport](docs/media/10-narrow-viewport.png) |
 
+| Recent pages                                    | Slash menu                                  |
+| ----------------------------------------------- | ------------------------------------------- |
+| ![Recent pages](docs/media/11-recent-pages.png) | ![Slash menu](docs/media/12-slash-menu.png) |
+
+| Dark mode                                 |
+| ----------------------------------------- |
+| ![Dark mode](docs/media/13-dark-mode.png) |
+
 ## Quickstart
 
 See [docs/development/local-setup.md](docs/development/local-setup.md) for the
