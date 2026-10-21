@@ -15,6 +15,10 @@ export default defineConfig({
   expect: {
     timeout: 30_000
   },
+  // Pre-compile every cold route the suite touches before the first test runs,
+  // so `next dev` on-fresh-`.next` no longer flakes a timed navigation
+  // assertion inside its 30s expect budget (see tests/e2e/global-setup.ts).
+  globalSetup: "./tests/e2e/global-setup.ts",
   use: {
     baseURL,
     trace: "on-first-retry"
